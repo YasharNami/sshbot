@@ -20,6 +20,7 @@ public class MainHandler
 {
     private static int offset = 0;
 
+    public static readonly string _db = "radmanvpndb";
     public static readonly bool is_develop = false;
     public static readonly int server_capacities = 100;
     public static readonly string _sshPasswords = "shayancJ3VCnb4Hh3fuCMHPMgfshayan";
@@ -30,19 +31,20 @@ public class MainHandler
     public static readonly ChatId _v2raygroup = -1001719099245;
     public static readonly ChatId _reportgroup = -1001937738975;
 
-    public static readonly ChatId _loggroup = -1001819080120;
-    public static readonly ChatId _managementgroup = -1001889297691;
     public static readonly ChatId _payments = -1001948477177;
     public static readonly ChatId _blockgroup = -1001963458108;
-    public static readonly ChatId _mainchannel = -1001803735997;
     public static readonly ChatId _colleaguegroup = -1001678498821;
+
+    public static readonly ChatId _managementgroup = -1001746127448;
+    public static readonly ChatId _mainchannel = -1001905710459;
+    public static readonly ChatId _loggroup = -1001958379115;
     public static string backup_dir = @"backups/";
 
 
     public static string support = $"@cb_ad";
     public static string title = $"connectbash";
-    public static string persianTitle = $"وصل باش";
-    public static string remark = @"ConnectBash";
+    public static string persianTitle = $"راد وی پی ان";
+    public static string remark = @"Rad";
 
     private static IUnitOfWork _uw;
 

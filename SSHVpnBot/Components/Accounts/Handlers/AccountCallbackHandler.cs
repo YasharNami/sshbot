@@ -71,9 +71,8 @@ public class AccountCallbackHandler : QueryHandler
 
                     if (subscriber.Role.Equals(Role.Colleague))
                     {
-                        var offerRules = await _uw.OfferRulesRepository.GetByServiceCode(service.Code);
-                        order.TotalAmount = offerRules.BasePrice + new Random().Next(100, 999);
-                        order.Amount = offerRules.BasePrice;
+                        order.TotalAmount = service.SellerPrice + new Random().Next(100, 999);
+                        order.Amount = service.SellerPrice;
                     }
 
                     await _bot.DeleteMessageAsync(user.Id, callBackQuery.Message.MessageId);

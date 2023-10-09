@@ -43,6 +43,8 @@ public static class GroupHandler
         {
             if (message.Text.Equals("/panel"))
             {
+                var server =  _uw.ServerRepository.GetAll();
+                var users = _uw.PanelService.GetOnlineClientsAsync(server.First());
                 await _bot.SendTextMessageAsync(groupId,
                     "قصد چه کاری را دارید؟",
                     replyMarkup: InlineKeyboards.AdminPanel());

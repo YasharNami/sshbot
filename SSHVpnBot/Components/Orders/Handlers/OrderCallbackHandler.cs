@@ -40,17 +40,12 @@ public class OrderCallbackHandler : QueryHandler
                 var service = await _uw.ServiceRepository.GetServiceInfo(data.Replace("factor*", ""));
                 if (service is not null && !service.IsRemoved && service.IsActive)
                 {
-                    var offerRules = await _uw.OfferRulesRepository.GetByServiceCode(service.Code);
                     await _bot.DeleteMessageAsync(user.Id, callBackQuery.Message.MessageId);
 
                     await _bot.SendTextMessageAsync(user.Id,
                         $"<b>♻️ بررسی تعداد سفارش</b>\n\n" +
                         $"🔗 اشتراک : <b>{service.GetFullTitle()}</b>\n" +
                         $"{(service.Description.HasValue() ? $"💬 درباره سرویس :\n{service.Description}\n\n" : "\n")}" +
-                        $"💰 قیمت پایه : <b>{((decimal)offerRules.BasePrice).ToIranCurrency().En2Fa()} تومان</b>\n" +
-                        $"🥈 سفارش <b>بیشتر از ۵</b> عدد : {offerRules.MoreThan5Order.ToString().En2Fa()} درصد تخفیف\n" +
-                        $"🏅 سفارش <b>بیشتر از ۱۵</b> عدد : {offerRules.MoreThan15Order.ToString().En2Fa()} درصد تخفیف\n\n" +
-                        $"🛑 حداکثر تعداد در یک سفارش <b>۳۰ سرویس</b> می باشد.\n\n" +
                         $"🔻 تعداد سفارش خود را وارد نمایید :",
                         ParseMode.Html,
                         replyMarkup: MarkupKeyboards.Cancel());
@@ -93,45 +88,45 @@ public class OrderCallbackHandler : QueryHandler
                 }
             }
         }
-        else if (data.StartsWith("category*"))
-        {
-            var category = await _uw.ServiceCategoryRepository.GetByServiceCategoryCode(callBackQuery.Data.Split('*')[1]);
-            if (category is not null && category.IsActive)
-            {
-                if (category.Code.Equals("CAT346100"))
-                {
-                    var services = await _uw.ServiceRepository.GetServicesByCategoryCodeAsync(category.Code);
-                    if (services.Count is not 0)
-                    {
-                        await _bot.DeleteMessageAsync(user.Id, callBackQuery.Message.MessageId);
-
-                        var ownserver = false;
-                        if (subscriber.Role.Equals(Role.Colleague))
-                            if (await _uw.ServerRepository.AnyServerForCollague(subscriber.UserId))
-                                ownserver = true;
-                        await _bot.SendTextMessageAsync(user.Id,
-                            ".\n" +
-                            $"{(category.Description.HasValue() ? $"💬 درباره {category.Title} :\n\n {category.Description}\n\n" : "")}" +
-                            "🔗 اشتراک مورد نظر خود را انتخاب کنید :", ParseMode.Html,
-                            replyMarkup: await OrderKeyboards.Services(_uw, subscriber, services, ownserver));
-                    }
-                    else
-                    {
-                        await _bot.AnswerCallbackQueryAsync(callBackQuery.Id
-                            , "این سرویس در حال حاضر سرویس فعالی ندارد.", true);
-                    }
-                }
-                else
-                {
-                    await _bot.AnswerCallbackQueryAsync(callBackQuery.Id
-                        , "این سرویس بزودی اضافه خواهد شد.", true);
-                }
-            }
-            else
-            {
-                await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "دسته بندی یافت نشد.", true);
-            }
-        }
+        // else if (data.StartsWith("category*"))
+        // {
+        //     var category = await _uw.ServiceCategoryRepository.GetByServiceCategoryCode(callBackQuery.Data.Split('*')[1]);
+        //     if (category is not null && category.IsActive)
+        //     {
+        //         if (category.Code.Equals("CAT346100"))
+        //         {
+        //             var services = await _uw.ServiceRepository.GetServicesByCategoryCodeAsync(category.Code);
+        //             if (services.Count is not 0)
+        //             {
+        //                 await _bot.DeleteMessageAsync(user.Id, callBackQuery.Message.MessageId);
+        //
+        //                 var ownserver = false;
+        //                 if (subscriber.Role.Equals(Role.Colleague))
+        //                     if (await _uw.ServerRepository.AnyServerForCollague(subscriber.UserId))
+        //                         ownserver = true;
+        //                 await _bot.SendTextMessageAsync(user.Id,
+        //                     ".\n" +
+        //                     $"{(category.Description.HasValue() ? $"💬 درباره {category.Title} :\n\n {category.Description}\n\n" : "")}" +
+        //                     "🔗 اشتراک مورد نظر خود را انتخاب کنید :", ParseMode.Html,
+        //                     replyMarkup: await OrderKeyboards.Services(_uw, subscriber, services, ownserver));
+        //             }
+        //             else
+        //             {
+        //                 await _bot.AnswerCallbackQueryAsync(callBackQuery.Id
+        //                     , "این سرویس در حال حاضر سرویس فعالی ندارد.", true);
+        //             }
+        //         }
+        //         else
+        //         {
+        //             await _bot.AnswerCallbackQueryAsync(callBackQuery.Id
+        //                 , "این سرویس بزودی اضافه خواهد شد.", true);
+        //         }
+        //     }
+        //     else
+        //     {
+        //         await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "دسته بندی یافت نشد.", true);
+        //     }
+        // }
         else if (data.StartsWith("review*"))
         {
             var order = await _uw.OrderRepository.GetByTrackingCode(callBackQuery.Data.Replace("review**", ""));
@@ -181,26 +176,26 @@ public class OrderCallbackHandler : QueryHandler
                 await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "سفارش مورد نظر یافت نشد.", true);
             }
         }
-        else if (data.Equals("servicecategories"))
-        {
-            await _bot.Choosed(callBackQuery);
-            var categories = (await _uw.ServiceCategoryRepository.GetAllCategoriesAsync())
-             .Where(s => s.IsActive && !s.IsRemoved).ToList();;
-            if (categories.Count is not 0)
-            {
-                await _bot.DeleteMessageAsync(user.Id, callBackQuery.Message.MessageId);
-                var services = _uw.ServiceRepository.GetAll()
-                    .Where(s => s.IsActive && !s.IsRemoved).ToList();
-                using (var fs = new MemoryStream(File.ReadAllBytes("./medias/cb.jpg")))
-                {
-                    await _bot.SendPhotoAsync(user.Id, new InputOnlineFile(fs, "connectbash"),
-                        $"🛒 نوع سرویس مورد نظر خود را جهت سفارش انتخاب نمایید :",
-                        ParseMode.Html,
-                        replyMarkup: await OrderKeyboards.Categories(_uw, subscriber, categories,
-                            services));
-                }
-            }
-        }
+        // else if (data.Equals("servicecategories"))
+        // {
+        //     await _bot.Choosed(callBackQuery);
+        //     var categories = (await _uw.ServiceCategoryRepository.GetAllCategoriesAsync())
+        //      .Where(s => s.IsActive && !s.IsRemoved).ToList();;
+        //     if (categories.Count is not 0)
+        //     {
+        //         await _bot.DeleteMessageAsync(user.Id, callBackQuery.Message.MessageId);
+        //         var services = _uw.ServiceRepository.GetAll()
+        //             .Where(s => s.IsActive && !s.IsRemoved).ToList();
+        //         using (var fs = new MemoryStream(File.ReadAllBytes("./medias/cb.jpg")))
+        //         {
+        //             await _bot.SendPhotoAsync(user.Id, new InputOnlineFile(fs, "radvpn"),
+        //                 $"🛒 نوع سرویس مورد نظر خود را جهت سفارش انتخاب نمایید :",
+        //                 ParseMode.Html,
+        //                 replyMarkup: await OrderKeyboards.Categories(_uw, subscriber, categories,
+        //                     services));
+        //         }
+        //     }
+        // }
         else if (data.StartsWith("discount*"))
         {
             var order = await _uw.OrderRepository.GetByTrackingCode(callBackQuery.Data.Split("*")[1]);

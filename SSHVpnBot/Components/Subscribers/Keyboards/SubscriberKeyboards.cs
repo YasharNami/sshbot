@@ -249,8 +249,8 @@ public class SubscriberKeyboards
                 new()
                 {
                     InlineKeyboardButton.WithCallbackData(
-                        $"{(subscriber.isActive ? "بن کردن کاربر 🔴" : "آنبن سازی کاربر 🟢")}",
-                        $"{Constants.SubscriberConstatns}-useractivation*{(subscriber.isActive ? "ban" : "unban")}*{subscriber.UserId}")
+                        $"{(subscriber.IsActive ? "بن کردن کاربر 🔴" : "آنبن سازی کاربر 🟢")}",
+                        $"{Constants.SubscriberConstatns}-useractivation*{(subscriber.IsActive ? "ban" : "unban")}*{subscriber.UserId}")
                 }
             })
             : subscriber.Role == Role.Colleague ? new InlineKeyboardMarkup(new List<List<InlineKeyboardButton>>
@@ -278,8 +278,8 @@ public class SubscriberKeyboards
                 new()
                 {
                     InlineKeyboardButton.WithCallbackData(
-                        $"{(subscriber.isActive ? "بن کردن کاربر 🔴" : "آنبن سازی کاربر 🟢")}",
-                        $"{Constants.SubscriberConstatns}-useractivation*{(subscriber.isActive ? "ban" : "unban")}*{subscriber.UserId}")
+                        $"{(subscriber.IsActive ? "بن کردن کاربر 🔴" : "آنبن سازی کاربر 🟢")}",
+                        $"{Constants.SubscriberConstatns}-useractivation*{(subscriber.IsActive ? "ban" : "unban")}*{subscriber.UserId}")
                 }
             })
             : new InlineKeyboardMarkup(new List<List<InlineKeyboardButton>>

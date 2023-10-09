@@ -44,59 +44,58 @@ public class OrderKeyboards
         });
     }
 
-    public static async Task<IReplyMarkup> Categories(IUnitOfWork uw, Subscriber subscriber,
-        List<ServiceCategory> categories, List<Service> services)
-    {
-        var buttonLines = new List<List<InlineKeyboardButton>>();
-
-        if (subscriber.Role.Equals(Role.Colleague))
-            foreach (var category in categories)
-            {
-                var service = services.Where(s => s.CategoryCode.Equals(category.Code)).OrderBy(s => s.Price)
-                    .FirstOrDefault();
-                if (service is not null)
-                {
-                    var baseprice = await uw.OfferRulesRepository.GetByServiceCode(service.Code);
-                    if (baseprice is not null)
-                        buttonLines.Add(new List<InlineKeyboardButton>()
-                        {
-                            InlineKeyboardButton.WithCallbackData($"🔗 {category.Title}" +
-                                                                  $" " +
-                                                                  $"{(service is not null ? $"شروع از {baseprice.BasePrice.ToIranCurrency().En2Fa()} تومان" : "")}",
-                                $"{Constants.OrderConstants}-category*{category.Code}")
-                        });
-                }
-            }
-        else
-            foreach (var category in categories)
-            {
-                var service = services.Where(s => s.CategoryCode.Equals(category.Code)).OrderBy(s => s.Price)
-                    .FirstOrDefault();
-                buttonLines.Add(new List<InlineKeyboardButton>()
-                {
-                    InlineKeyboardButton.WithCallbackData($"🔗 {category.Title}" +
-                                                          $" " +
-                                                          $"{(service is not null ? $"شروع از {service.Price.ToIranCurrency().En2Fa()} تومان" : "")}",
-                        $"{Constants.OrderConstants}-category*{category.Code}")
-                });
-            }
-
-        return new InlineKeyboardMarkup(buttonLines);
-    }
+    // public static async Task<IReplyMarkup> Categories(IUnitOfWork uw, Subscriber subscriber,
+    //     List<ServiceCategory> categories, List<Service> services)
+    // {
+    //     var buttonLines = new List<List<InlineKeyboardButton>>();
+    //
+    //     if (subscriber.Role.Equals(Role.Colleague))
+    //         foreach (var category in categories)
+    //         {
+    //             var service = services.Where(s => s.CategoryCode.Equals(category.Code)).OrderBy(s => s.Price)
+    //                 .FirstOrDefault();
+    //             if (service is not null)
+    //             {
+    //                 var baseprice = await uw.OfferRulesRepository.GetByServiceCode(service.Code);
+    //                 if (baseprice is not null)
+    //                     buttonLines.Add(new List<InlineKeyboardButton>()
+    //                     {
+    //                         InlineKeyboardButton.WithCallbackData($"🔗 {category.Title}" +
+    //                                                               $" " +
+    //                                                               $"{(service is not null ? $"شروع از {baseprice.BasePrice.ToIranCurrency().En2Fa()} تومان" : "")}",
+    //                             $"{Constants.OrderConstants}-category*{category.Code}")
+    //                     });
+    //             }
+    //         }
+    //     else
+    //         foreach (var category in categories)
+    //         {
+    //             var service = services.Where(s => s.CategoryCode.Equals(category.Code)).OrderBy(s => s.Price)
+    //                 .FirstOrDefault();
+    //             buttonLines.Add(new List<InlineKeyboardButton>()
+    //             {
+    //                 InlineKeyboardButton.WithCallbackData($"🔗 {category.Title}" +
+    //                                                       $" " +
+    //                                                       $"{(service is not null ? $"شروع از {service.Price.ToIranCurrency().En2Fa()} تومان" : "")}",
+    //                     $"{Constants.OrderConstants}-category*{category.Code}")
+    //             });
+    //         }
+    //
+    //     return new InlineKeyboardMarkup(buttonLines);
+    // }
 
     public static async Task<InlineKeyboardMarkup> Services(IUnitOfWork _uw, Subscriber subscriber,
-        IEnumerable<Service> services, bool ownserver)
+        IEnumerable<Service> services)
     {
         var buttonLines = new List<List<InlineKeyboardButton>>();
         if (subscriber.Role.Equals(Role.Colleague))
             foreach (var item in services.OrderBy(s => s.Price).ToList())
             {
-                var baseprice = await _uw.OfferRulesRepository.GetByServiceCode(item.Code);
-                if (baseprice is not null)
+                if (item.SellerPrice is not 0)
                     buttonLines.Add(new List<InlineKeyboardButton>()
                     {
                         InlineKeyboardButton.WithCallbackData(
-                            $"{(item.Traffic != 0 ? "🔗" : "⚜️")} {item.GetFullTitle()} {baseprice.BasePrice.ToIranCurrency().En2Fa()} تومان",
+                            $"{(item.Traffic != 0 ? "🔗" : "⚜️")} {item.GetFullTitle()} {item.SellerPrice.ToIranCurrency().En2Fa()} تومان",
                             $"{Constants.OrderConstants}-factor*{item.Id}")
                     });
             }
@@ -108,18 +107,11 @@ public class OrderKeyboards
                         $"{(item.Traffic != 0 ? "🔗" : "⚜️")} {item.GetFullTitle()} {item.Price.ToIranCurrency().En2Fa()} تومان",
                         $"{Constants.OrderConstants}-factor*{item.Id}")
                 });
-
-        if (ownserver)
-            buttonLines.Add(new List<InlineKeyboardButton>()
-            {
-                InlineKeyboardButton.WithCallbackData($"💎 ساخت اشتراک دلخواه", $"{Constants.OrderConstants}-newservice")
-            });
-
-
-        buttonLines.Add(new List<InlineKeyboardButton>()
-        {
-            InlineKeyboardButton.WithCallbackData($"👈 بازگشت به سرویس ها", $"{Constants.OrderConstants}-servicecategories")
-        });
+        
+        // buttonLines.Add(new List<InlineKeyboardButton>()
+        // {
+        //     InlineKeyboardButton.WithCallbackData($"👈 بازگشت به سرویس ها", $"{Constants.OrderConstants}-servicecategories")
+        // });
         return new InlineKeyboardMarkup(buttonLines);
     }
 
@@ -134,116 +126,7 @@ public class OrderKeyboards
             });
         return new InlineKeyboardMarkup(buttonLines);
     }
-
-    public static IReplyMarkup NewServiceDurations()
-    {
-        return new InlineKeyboardMarkup(new List<List<InlineKeyboardButton>>
-        {
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData($"⌛️ دو ماهه", $"{Constants.OrderConstants}-newserviceduration*{60}"),
-                InlineKeyboardButton.WithCallbackData($"⌛️ یک ماهه", $"{Constants.OrderConstants}-newserviceduration*{30}")
-            },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData($"⌛️ شش ماهه", $"{Constants.OrderConstants}-newserviceduration*{180}"),
-                InlineKeyboardButton.WithCallbackData($"⌛️ سه ماهه", $"{Constants.OrderConstants}-newserviceduration*{90}")
-            }
-        });
-    }
-
-    public static IReplyMarkup NewServiceTraffics(string duration, bool own_server)
-    {
-        if (own_server)
-            return new InlineKeyboardMarkup(new List<List<InlineKeyboardButton>>
-            {
-                new()
-                {
-                    InlineKeyboardButton.WithCallbackData($"🔋 ۱۰ گیگ",
-                        $"{Constants.OrderConstants}-newservicetraffic*{10}*{duration}"),
-                    InlineKeyboardButton.WithCallbackData($"🔋 ۵ گیگ",
-                        $"{Constants.OrderConstants}-newservicetraffic*{5}*{duration}")
-                },
-                new()
-                {
-                    InlineKeyboardButton.WithCallbackData($"🔋 ۴۵ گیگ",
-                        $"{Constants.OrderConstants}-newservicetraffic*{45}*{duration}"),
-                    InlineKeyboardButton.WithCallbackData($"🔋 ۲۰ گیگ",
-                        $"{Constants.OrderConstants}-newservicetraffic*{20}*{duration}")
-                },
-                new()
-                {
-                    InlineKeyboardButton.WithCallbackData($"🔋 ۱۰۰ گیگ",
-                        $"{Constants.OrderConstants}-newservicetraffic*{100}*{duration}"),
-                    InlineKeyboardButton.WithCallbackData($"🔋 ۷۰ گیگ",
-                        $"{Constants.OrderConstants}-newservicetraffic*{70}*{duration}")
-                },
-                new()
-                {
-                    InlineKeyboardButton.WithCallbackData($"🔱 بدون محدودیت حجم",
-                        $"{Constants.OrderConstants}-newservicetraffic*0*{duration}")
-                }
-            });
-        else
-            return new InlineKeyboardMarkup(new List<List<InlineKeyboardButton>>
-            {
-                new()
-                {
-                    InlineKeyboardButton.WithCallbackData($"🔋 ۱۰ گیگ",
-                        $"{Constants.OrderConstants}-newservicetraffic*{10}*{duration}"),
-                    InlineKeyboardButton.WithCallbackData($"🔋 ۵ گیگ",
-                        $"{Constants.OrderConstants}-newservicetraffic*{5}*{duration}")
-                },
-                new()
-                {
-                    InlineKeyboardButton.WithCallbackData($"🔋 ۴۵ گیگ",
-                        $"{Constants.OrderConstants}-newservicetraffic*{45}*{duration}"),
-                    InlineKeyboardButton.WithCallbackData($"🔋 ۲۰ گیگ",
-                        $"{Constants.OrderConstants}-newservicetraffic*{20}*{duration}")
-                },
-                new()
-                {
-                    InlineKeyboardButton.WithCallbackData($"🔋 ۱۰۰ گیگ",
-                        $"{Constants.OrderConstants}-newservicetraffic*{100}*{duration}"),
-                    InlineKeyboardButton.WithCallbackData($"🔋 ۷۰ گیگ",
-                        $"{Constants.OrderConstants}-newservicetraffic*{70}*{duration}")
-                }
-            });
-    }
-
-    public static IReplyMarkup NewServiceUserLimits(int duration, int traffic, bool own_server)
-    {
-        if (own_server)
-            return new InlineKeyboardMarkup(new List<List<InlineKeyboardButton>>
-            {
-                new()
-                {
-                    InlineKeyboardButton.WithCallbackData($"👥 تک کاربره",
-                        $"{Constants.OrderConstants}-newserviceuserlimit*{1}*{duration}*{traffic}"),
-                    InlineKeyboardButton.WithCallbackData($"👥 دو کاربره",
-                        $"{Constants.OrderConstants}-newserviceuserlimit*{2}*{duration}*{traffic}")
-                },
-                new()
-                {
-                    InlineKeyboardButton.WithCallbackData($"👥 پنج کاربره",
-                        $"{Constants.OrderConstants}-newserviceuserlimit*{5}*{duration}*{traffic}"),
-                    InlineKeyboardButton.WithCallbackData($"👥 ده کاربره",
-                        $"{Constants.OrderConstants}-newserviceuserlimit*{10}*{duration}*{traffic}")
-                }
-            });
-        else
-            return new InlineKeyboardMarkup(new List<List<InlineKeyboardButton>>
-            {
-                new()
-                {
-                    InlineKeyboardButton.WithCallbackData($"👥 تک کاربره",
-                        $"{Constants.OrderConstants}-newserviceuserlimit*{1}*{duration}*{traffic}"),
-                    InlineKeyboardButton.WithCallbackData($"👥 دو کاربره",
-                        $"{Constants.OrderConstants}-newserviceuserlimit*{2}*{duration}*{traffic}")
-                }
-            });
-    }
-
+    
     public static InlineKeyboardMarkup PaymentMethods(IEnumerable<PaymentMethod> methods, Service service,
         string trackingCode)
     {

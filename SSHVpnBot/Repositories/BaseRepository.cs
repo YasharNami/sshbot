@@ -1,5 +1,6 @@
 using System.Data.SqlClient;
 using System.Reflection;
+using ConnectBashBot.Telegram.Handlers;
 using Dapper;
 
 namespace SSHVpnBot.Repositories;
@@ -7,8 +8,8 @@ namespace SSHVpnBot.Repositories;
 public class BaseRepository<TEntity> : IBaseRepository<TEntity>
 {
     public readonly string conString =
-        @"Server=91.107.164.92,1334;Database=radmehrvpndb;User Id=sa;Password=zzrMaf[3%@223A>ya*2;TrustServerCertificate=true;";
-
+            $@"Server=65.21.154.21\MSSQLSERVER2019;Database={MainHandler._db};User Id=sa;Password=EqUxJ53xx3ULRAtNw7FH;TrustServerCertificate=true;";
+    
     public TEntity GetById(int id)
     {
         using (var db = new SqlConnection(conString))

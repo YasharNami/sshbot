@@ -14,8 +14,4 @@ public interface IServerRepository : IBaseRepository<Server>
     Task<bool> Capacity(int neededCapacity, string category);
     bool AnyByDomain(string servervCode, string domain);
     Task<Server?> GetByDomainAsync(string domain);
-    Task<bool> AnyServerForCollague(long userInfoUserId);
-    Task<bool> ColleagueCapacity(int neededCapacity, long ownerid);
-    Task<Server> GetColleagueActiveOne(int spaceNeeded, long ownerid);
-    Task<List<Server>> GetColleagueServers();
 }

@@ -6,7 +6,7 @@ namespace SSHVpnBot.Components.Locations.Repository;
 
 public class LocationRepository : BaseRepository<Location>, ILocationRepository
 {
-    public async Task<Location> GetLocationByCode(string code)
+    public async Task<Location?> GetLocationByCode(string code)
     {
         using (var db = new SqlConnection(conString))
         {

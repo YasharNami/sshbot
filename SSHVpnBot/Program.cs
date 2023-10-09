@@ -14,7 +14,7 @@ using Telegram.Bot;
 
 var host = CreateHostBuilder(args).Build();
 var scope = host.Services.CreateScope();
-var bot = new TelegramBotClient("5415867531:AAEeRpoXv3jdq2Wtxmw7sxlm4Cwdnmk-9JQ");
+var bot = new TelegramBotClient("6617847105:AAHZzXqV3C8JoFXfVaRPidu8gebleBUKwYY");
 
 var handler = new MainHandler(scope.ServiceProvider.GetRequiredService<IUnitOfWork>(), bot);
 try
@@ -58,6 +58,6 @@ public partial class Program
 {
     public static int Req = 0;
     public static Thread thread;
-    public static TelegramBotClient logger_bot = new("6132149041:AAFUlVf3nKPayz0nww5azsIBb61uYdONlqc");
+    public static TelegramBotClient logger_bot = new("6620566060:AAEOS_miPSf3LkcaRVpSUkb7sIjLCvIMp40");
     public static TelegramBotClient syncer_bot = new("6468788497:AAEGpZRuGhKQBZLvYvs6Oze_45z4RwXOVRc");
 }

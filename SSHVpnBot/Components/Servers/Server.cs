@@ -16,10 +16,7 @@ public class Server
     public DateTime CreatedOn { get; set; }
     public int Capacity { get; set; }
     public bool IsRemoved { get; set; }
-    public long OwnerId { get; set; }
-    public int SSHPort { get; set; }
     public string Note { get; set; }
-    public string CategoryCode { get; set; }
     public string SSHPassword { get; set; }
     public string LocationCode { get; set; }
 
@@ -32,8 +29,8 @@ public enum ServerType : int
 {
     [Display(Name = "سرور اصلی ⚜️")] Main = 0,
     [Display(Name = "سرور تست 🪛")] Check,
-    [Display(Name = "سرور همکار 👨‍💻")] Colleague,
-
-    [Display(Name = "سرور پرزنت حضوری 👀")]
-    Peresent
+    // [Display(Name = "سرور همکار 👨‍💻")] Colleague,
+    //
+    // [Display(Name = "سرور پرزنت حضوری 👀")]
+    // Peresent
 }

@@ -104,29 +104,7 @@ public class ServerRepository : BaseRepository<Server>, IServerRepository
                 new { domain });
         }
     }
-
-    public async Task<bool> AnyServerForCollague(long ownerid)
-    {
-        using (var db = new SqlConnection(conString))
-        {
-            return db.Query(
-                $"select code from servers where isactive=1 and ownerid=@ownerid  and isremoved=0 and type={(int)ServerType.Colleague}",
-                new { ownerid }).Any();
-        }
-    }
-
-
-    public async Task<Server> GetColleagueActiveOne(int spaceNeeded, long ownerid)
-    {
-        using (var db = new SqlConnection(conString))
-        {
-            return await db.QueryFirstOrDefaultAsync<Server>(
-                $"select * from servers where isactive=1  and isremoved=0 and type={(int)ServerType.Colleague} and ownerid=@ownerid and capacity >= @spaceNeeded order by capacity desc",
-                new
-                    { spaceNeeded, ownerid });
-        }
-    }
-
+    
     public async Task<List<Server>> GetColleagueServers()
     {
         using (var db = new SqlConnection(conString))
@@ -134,15 +112,5 @@ public class ServerRepository : BaseRepository<Server>, IServerRepository
             return (await db.QueryAsync<Server>($"select * from servers where type=2 and isremoved=0")).ToList();
         }
     }
-
-    public async Task<bool> ColleagueCapacity(int neededCapacity, long ownerid)
-    {
-        using (var db = new SqlConnection(conString))
-        {
-            var capacities = await db.QueryFirstOrDefaultAsync<int>(
-                $"select sum(capacity) from servers where isactive=1 and isremoved=0 and capacity>0 and type={(int)ServerType.Colleague} and ownerid=@ownerid",
-                new { ownerid });
-            return capacities >= neededCapacity ? true : false;
-        }
-    }
+    
 }

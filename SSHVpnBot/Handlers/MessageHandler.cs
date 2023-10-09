@@ -8,6 +8,7 @@ using SSHVpnBot.Components.Accounts.Keyboards;
 using SSHVpnBot.Components.Checkouts;
 using SSHVpnBot.Components.Colleagues;
 using SSHVpnBot.Components.Discounts.Handlers;
+using SSHVpnBot.Components.Locations;
 using SSHVpnBot.Components.Orders.Handlers;
 using SSHVpnBot.Components.Orders.Keyboards;
 using SSHVpnBot.Components.Servers.Handlers;
@@ -64,7 +65,7 @@ public static class MessageHandler
             return;
         }
 
-        if (userInfo.isActive)
+        if (userInfo.IsActive)
         {
             if (messageType == MessageType.Text)
             {
@@ -203,37 +204,13 @@ public static class MessageHandler
                 else if (message.Text.Equals("🔗 خرید اشتراک جدید") || message.Text.Equals("🚀 خرید اکانت جدید") ||
                          message.Text.Equals("وی پی ان اختصاصی 🔗"))
                 {
-                    var own_server = await _uw.ServerRepository.AnyServerForCollague(user.Id);
-                    if (own_server)
-                    {
+                   
                         var services = _uw.ServiceRepository.GetAll()
                             .Where(s => s.IsActive && !s.IsRemoved).ToList();
-                        var categories = await _uw.ServiceCategoryRepository.GetAllCategoriesAsync();
-                        categories = categories.Where(s => s.IsActive).ToList();
-                        using (var fs = new MemoryStream(File.ReadAllBytes("./medias/cb.jpg")))
-                        {
-                            await _bot.SendPhotoAsync(user.Id, new InputOnlineFile(fs, "connectbash"),
-                                $"🛒 نوع سرویس مورد نظر خود را جهت سفارش انتخاب نمایید :",
-                                ParseMode.Html,
-                                replyMarkup: await OrderKeyboards.Categories(_uw, userInfo, categories,
-                                    services));
-                        }
-                    }
-                    else
-                    {
-                        var services = _uw.ServiceRepository.GetAll()
-                            .Where(s => s.IsActive && !s.IsRemoved).ToList();
-                        var categories = await _uw.ServiceCategoryRepository.GetAllCategoriesAsync();
-                        categories = categories.Where(s => s.IsActive).ToList();
-                        using (var fs = new MemoryStream(File.ReadAllBytes("./medias/cb.jpg")))
-                        {
-                            await _bot.SendPhotoAsync(user.Id, new InputOnlineFile(fs, "connectbash"),
-                                caption: $"🛒 نوع سرویس مورد نظر خود را جهت سفارش انتخاب نمایید :",
-                                ParseMode.Html,
-                                replyMarkup: await OrderKeyboards.Categories(_uw, userInfo, categories,
-                                    services));
-                        }
-                    }
+                        await _bot.SendTextMessageAsync(user.Id, 
+                            ".\n" +
+                            "🔗 اشتراک مورد نظر خود را انتخاب کنید :", ParseMode.Html,
+                            replyMarkup: await OrderKeyboards.Services(_uw, userInfo, services));
                 }
                 else if (message.Text.Equals("📁 سفارشات من"))
                 {
@@ -374,6 +351,36 @@ public static class MessageHandler
                 else if (message.Text.Equals("🧪 دریافت اکانت تست"))
                 {
 
+                }
+                else if (step.StartsWith("updatelocation*"))
+                {
+                    var location = await _uw.LocationRepository.GetLocationByCode(step.Split("*")[1]);
+                    if (location is not null)
+                    {
+                        var property = step.Split("*")[2];
+                        switch (property)
+                        {
+                            case "title":
+                                location.Title = message.Text.Fa2En();
+                                await _bot.SendTextMessageAsync(user.Id,
+                                    "نام کشور موفعیت مکانی با موفقیت تنظیم شد.✅",
+                                    replyMarkup: MarkupKeyboards.Main(userInfo.Role));
+                                _uw.LocationRepository.Update(location);
+                                _uw.SubscriberRepository.ChangeStep(user.Id, $"none");
+                                break;
+                            case "flat":
+                                location.Flat = message.Text.Trim();
+                                await _bot.SendTextMessageAsync(user.Id,
+                                    "پرچم کشور موفعیت مکانی با موفقیت تنظیم شد.✅",
+                                    replyMarkup: MarkupKeyboards.Main(userInfo.Role));
+                                _uw.LocationRepository.Update(location);
+                                _uw.SubscriberRepository.ChangeStep(user.Id, $"none");
+                                break;
+                        }
+
+                        await _bot.DeleteMessageAsync(user.Id, int.Parse(step.Split("*")[3]));
+                        await _bot.AddNewLocation(user.Id, location);
+                    }
                 }
                 else if (step.Equals("sendiban"))
                 {

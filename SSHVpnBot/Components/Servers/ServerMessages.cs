@@ -12,9 +12,9 @@ public static class ServerMessages
 {
     public static async Task AddNewServer(this ITelegramBotClient bot, IUnitOfWork uw, long chatId, Server server)
     {
-        ServiceCategory? category = null;
-        if (server.CategoryCode.HasValue())
-            category = await uw.ServiceCategoryRepository.GetByServiceCategoryCode(server.CategoryCode);
+        // ServiceCategory? category = null;
+        // if (server.CategoryCode.HasValue())
+        //     category = await uw.ServiceCategoryRepository.GetByServiceCategoryCode(server.CategoryCode);
 
         Location location = null;
         if (server.LocationCode.HasValue())
@@ -28,7 +28,7 @@ public static class ServerMessages
                 $"📍 آدرس دامنه : <code>{server.Domain}</code>\n" +
                 $"🔘 نام کاربری : <code>{server.Username}</code>\n\n" +
                 $"{(location is not null ? $"🌍 لوکیشن سرور : <b>{location.Title} {location.Flat}</b>\n" : "")}" +
-                $"{(category is not null ? $"🌀 دسته بندی : <b>{category.Title}</b>\n\n" : "")}" +
+                //$"{(category is not null ? $"🌀 دسته بندی : <b>{category.Title}</b>\n\n" : "")}" +
                 $"♻️ جهت ویرایش از منو زیر اقدام نمایید :",
                 ParseMode.Html,
                 replyMarkup: ServerKeyboards.SingleServerManagement(server));

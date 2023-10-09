@@ -143,10 +143,13 @@ public class ServerKeyboards
         }
         else
         {
-            buttonLines.Add(new List<InlineKeyboardButton>()
+            if (main_servers.Count != 0)
             {
-                InlineKeyboardButton.WithCallbackData($"صفحه قبل 👈", $"{Constants.ServerConstants}-page*{page - 1}")
-            });
+                buttonLines.Add(new List<InlineKeyboardButton>()
+                {
+                    InlineKeyboardButton.WithCallbackData($"صفحه قبل 👈", $"{Constants.ServerConstants}-page*{page - 1}")
+                });
+            }
         }
 
         if (page == 1)
@@ -161,10 +164,10 @@ public class ServerKeyboards
                     });
         }
 
-        buttonLines.Add(new List<InlineKeyboardButton>()
-        {
-            InlineKeyboardButton.WithCallbackData($"سرور همکاران 👨‍💻", $"{Constants.ServerConstants}-colleagueservers")
-        });
+        // buttonLines.Add(new List<InlineKeyboardButton>()
+        // {
+        //     InlineKeyboardButton.WithCallbackData($"سرور همکاران 👨‍💻", $"{Constants.ServerConstants}-colleagueservers")
+        // });
         buttonLines.Add(new List<InlineKeyboardButton>()
         {
             InlineKeyboardButton.WithCallbackData($"افزودن سرور جدید ➕", $"{Constants.ServerConstants}-newserver")
@@ -184,17 +187,7 @@ public class ServerKeyboards
                     $"{(mainServers[i].IsActive ? "🟢" : "🔴")} {mainServers[i].Domain.Split(".")[0]} ({mainServers[i].Capacity})",
                     $"{Constants.ServerConstants}-server*{mainServers[i].Code}")
             });
-
-        var colleague_servers = servers.Where(s => s.Type == ServerType.Colleague).ToList();
-        if (colleague_servers.Count > 0)
-            foreach (var server in colleague_servers)
-                buttonLines.Add(new List<InlineKeyboardButton>()
-                {
-                    InlineKeyboardButton.WithCallbackData(
-                        $"{(server.IsActive ? "🟢" : "🔴")} {server.Domain.Split(".")[0]} ({server.Capacity}) 📱",
-                        $"{Constants.ServerConstants}-server*{server.Code}")
-                });
-
+        
         var checkServers = servers.Where(s => s.Type == ServerType.Check).ToList();
         if (checkServers.Count > 0)
             foreach (var server in checkServers)
@@ -222,11 +215,11 @@ public class ServerKeyboards
                 InlineKeyboardButton.WithCallbackData($"سرور اصلی ⚜️️",
                     $"{Constants.ServerConstants}-type*{server.Code}*{nameof(ServerType.Main)}")
             },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData($"سرور همکار 👨‍💻️",
-                    $"{Constants.ServerConstants}-type*{server.Code}*{nameof(ServerType.Colleague)}")
-            }
+            // new()
+            // {
+            //     InlineKeyboardButton.WithCallbackData($"سرور همکار 👨‍💻️",
+            //         $"{Constants.ServerConstants}-type*{server.Code}*{nameof(ServerType.Colleague)}")
+            // }
         });
     }
 
@@ -263,8 +256,6 @@ public class ServerKeyboards
             new()
             {
                 InlineKeyboardButton.WithCallbackData("رمز ریموت 💻️",
-                    $"{Constants.ServerConstants}-update*{server.Code}*sshpassword"),
-                InlineKeyboardButton.WithCallbackData("پورت ریموت 💻️",
                     $"{Constants.ServerConstants}-update*{server.Code}*sshpassword")
             },
             new()
@@ -291,11 +282,11 @@ public class ServerKeyboards
                 InlineKeyboardButton.WithCallbackData("حذف سرور ✖️️️️️",
                     $"{Constants.ServerConstants}-update*{server.Code}*delete")
             },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("همگامسازی سرور ♻️️️️",
-                    $"{Constants.ServerConstants}-update*{server.Code}*sync")
-            },
+            // new()
+            // {
+            //     InlineKeyboardButton.WithCallbackData("همگامسازی سرور ♻️️️️",
+            //         $"{Constants.ServerConstants}-update*{server.Code}*sync")
+            // },
             new()
             {
                 InlineKeyboardButton.WithCallbackData("دریافت بک آپ 🗂️",
@@ -308,21 +299,21 @@ public class ServerKeyboards
                 InlineKeyboardButton.WithCallbackData("لوکیشن 🌎️",
                     $"{Constants.ServerConstants}-update*{server.Code}*location")
             },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("دسته بندی سرور 🌀️",
-                    $"{Constants.ServerConstants}-update*{server.Code}*category")
-            },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("ساخت پورت های پیشفرض 🔧",
-                    $"{Constants.ServerConstants}-update*{server.Code}*initports")
-            },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("دریافت اکانت تست 🧪",
-                    $"{Constants.ServerConstants}-update*{server.Code}*account")
-            },
+            // new()
+            // {
+            //     InlineKeyboardButton.WithCallbackData("دسته بندی سرور 🌀️",
+            //         $"{Constants.ServerConstants}-update*{server.Code}*category")
+            // },
+            // new()
+            // {
+            //     InlineKeyboardButton.WithCallbackData("ساخت پورت های پیشفرض 🔧",
+            //         $"{Constants.ServerConstants}-update*{server.Code}*initports")
+            // },
+            // new()
+            // {
+            //     InlineKeyboardButton.WithCallbackData("دریافت اکانت تست 🧪",
+            //         $"{Constants.ServerConstants}-update*{server.Code}*account")
+            // },
             new()
             {
                 InlineKeyboardButton.WithCallbackData(

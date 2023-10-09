@@ -11,7 +11,7 @@ public static class SubscriberUtillities
             UserId = user.Id,
             Username = user.Username,
             Step = "none",
-            isActive = true,
+            IsActive = true,
             Notification = true,
             JoinedOn = DateTime.Now,
             Role = Role.Subscriber,

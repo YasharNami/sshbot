@@ -29,7 +29,6 @@ public class UnitOfWork : IUnitOfWork
     private IPaymentMethodRepository _paymentMethodRepository;
     private IConfigurationRepository _configurationRepository;
     private IServerRepository _serverRepository;
-    private IOfferRulesRepository _offerRulesRepository;
     private IAccountRepository _accountRepository;
     private IDiscountRepository _discountRepository;
     private ITransactionRepository _transactionRepository;
@@ -37,11 +36,9 @@ public class UnitOfWork : IUnitOfWork
     private ICheckoutRepository _checkoutRepository;
     private IExcelService _excelService;
     private ILocationRepository _locationRepository;
-    
     private IServiceCategoryRepository _categoryRepository;
     private IAccountReportRepository _reportRepository;
     private IPanelService _panelService;
-
     public IPanelService PanelService
     {
         get
@@ -210,17 +207,6 @@ public class UnitOfWork : IUnitOfWork
             return _serverRepository;
         }
     }
-
-    public IOfferRulesRepository OfferRulesRepository
-    {
-        get
-        {
-            if (_offerRulesRepository == null)
-                _offerRulesRepository = new OfferRulesRepository();
-            return _offerRulesRepository;
-        }
-    }
-
     public IAccountRepository AccountRepository
     {
         get

@@ -21,12 +21,11 @@ public class Service : Entity<int>
     public decimal Price { get; set; }
     public string Code { get; set; }
     public int Duration { get; set; }
-    public string CategoryCode { get; set; }
     public int Traffic { get; set; }
     public int UserLimit { get; set; }
     public bool IsActive { get; set; }
     public bool IsRemoved { get; set; }
-    public long CreatedBy { get; set; }
+    public decimal SellerPrice { get; set; }
 
     public static string GenerateNewCode()
     {

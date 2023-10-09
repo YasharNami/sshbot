@@ -12,22 +12,19 @@ namespace SSHVpnBot.Components.Services;
 
 public static class ServiceMessages
 {
-    public static async Task UpdateService(this ITelegramBotClient bot, IUnitOfWork uw, long chatId, Service service,
-        OfferRule offerRule)
+    public static async Task UpdateService(this ITelegramBotClient bot, IUnitOfWork uw, long chatId, Service service)
     {
-        ServiceCategory category = null;
-        if (service.CategoryCode.HasValue())
-            category = await uw.ServiceCategoryRepository.GetByServiceCategoryCode(service.CategoryCode);
+        // ServiceCategory category = null;
+        // if (service.CategoryCode.HasValue())
+        //     category = await uw.ServiceCategoryRepository.GetByServiceCategoryCode(service.CategoryCode);
         await bot
             .SendTextMessageAsync(chatId,
                 $"<b>ویرایش سرویس <code>#{service.Code}</code> :</b>\n\n" +
                 $"📌 نام سرویس : <b>{service.GetFullTitle()}</b>\n" +
-                (category is null ? "" : $"🧩 دسته بندی سرویس : <b>{category.Title}</b>\n") +
+                //(category is null ? "" : $"🧩 دسته بندی سرویس : <b>{category.Title}</b>\n") +
                 $"💬️ توضیحات : <b>{(service.Description.HasValue() ? service.Description : "تنظیم نشده")}</b>\n" +
                 $"💲 قیمت سرویس : {service.Price.ToIranCurrency().En2Fa()} تومان\n" +
-                (offerRule is not null
-                    ? $"💲 قیمت پایه همکار : {((decimal)offerRule.BasePrice).ToIranCurrency().En2Fa()} تومان\n"
-                    : "") +
+                $"💲 قیمت پایه همکار : {(service.SellerPrice).ToIranCurrency().En2Fa()} تومان\n" +
                 $"⌛️ مدت : <b>{(service.Duration == 0 ? "نامحدود" : service.Duration.ToString().En2Fa() + " روز")}</b>\n" +
                 $"♻️ جهت ویرایش از منو زیر اقدام نمایید :",
                 ParseMode.Html,
@@ -37,14 +34,14 @@ public static class ServiceMessages
     public static async Task AddNewService(this ITelegramBotClient bot, IUnitOfWork uw, long chatId, Service service)
     {
         ServiceCategory category = null;
-        if (service.CategoryCode.HasValue())
-            category = await uw.ServiceCategoryRepository.GetByServiceCategoryCode(service.CategoryCode);
+        // if (service.CategoryCode.HasValue())
+        //     category = await uw.ServiceCategoryRepository.GetByServiceCategoryCode(service.CategoryCode);
         await bot
             .SendTextMessageAsync(chatId,
                 $"<b>افزودن سرویس جدید :</b>\n\n" +
                 $"🔖 شناسه سرویس : <code>#{service.Code}</code>\n" +
                 $"📌 نام سرویس : <b>{service.GetFullTitle()}</b>\n" +
-                (category is null ? "" : $"🧩 دسته بندی سرویس : <b>{category.Title}</b>\n") +
+                //(category is null ? "" : $"🧩 دسته بندی سرویس : <b>{category.Title}</b>\n") +
                 $"💬️ توضیحات : <b>{(service.Description.HasValue() ? service.Description : "تنظیم نشده")}</b>\n" +
                 $"💲 قیمت سرویس : {service.Price.ToIranCurrency().En2Fa()} تومان\n" +
                 $"⌛️ مدت : <b>{(service.Duration == 0 ? "نامحدود" : service.Duration.ToString().En2Fa() + " روز")}</b>\n\n" +

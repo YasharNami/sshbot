@@ -3,15 +3,19 @@ using SSHVpnBot.Domains;
 
 namespace SSHVpnBot.Components.Subscribers;
 
-public class Subscriber : Entity<int>
+public class Subscriber : Entity<Guid>
 {
+    public Subscriber()
+    {
+        Id = Guid.NewGuid();
+    }
     public long UserId { get; set; }
     public string FullName { get; set; }
     public string Username { get; set; }
     public Role Role { get; set; }
     public DateTime JoinedOn { get; set; }
     public string Referral { get; set; }
-    public bool isActive { get; set; }
+    public bool IsActive { get; set; }
     public string Step { get; set; }
     public bool Notification { get; set; }
 }

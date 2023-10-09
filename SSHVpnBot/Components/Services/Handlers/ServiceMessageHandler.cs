@@ -46,6 +46,8 @@ public class ServiceMessageHandler : MessageHandler
                             break;
                         case "price":
                             service.Price = decimal.Parse(message.Text.Fa2En());
+                            if (service.SellerPrice is 0)
+                                service.SellerPrice = decimal.Parse(message.Text.Fa2En());
                             await _bot.SendTextMessageAsync(user.Id, "قیمت سرویس با موفقیت ویرایش شد ✅",
                                 replyMarkup: MarkupKeyboards.Main(subscriber.Role));
                             _uw.ServiceRepository.Update(service);
@@ -72,6 +74,19 @@ public class ServiceMessageHandler : MessageHandler
                             _uw.ServiceRepository.Update(service);
                             _uw.SubscriberRepository.ChangeStep(user.Id, $"none");
                             break;
+                        case "sellerprice":
+                            if (message.Text!.Fa2En().IsNumber())
+                            {
+                                service!.SellerPrice = int.Parse(message.Text!.Fa2En());
+                                _uw.ServiceRepository.Update(service);
+                                await _bot.SendTextMessageAsync(user.Id, "قیمت پایه همکاری سرویس با موفقیت ویرایش شد.✅",
+                                    replyToMessageId: message.MessageId, 
+                                    replyMarkup: MarkupKeyboards.Main(subscriber.Role));
+                                _uw.SubscriberRepository.ChangeStep(user.Id, "none");
+                            }
+                            else
+                                await _bot.SendTextMessageAsync(user.Id, $"لطفا یک قیمت صحیح وارد کنید.", replyToMessageId: message.MessageId);
+                            break;
                         default:
                             break;
                     }
@@ -79,26 +94,6 @@ public class ServiceMessageHandler : MessageHandler
                     await _bot.DeleteMessageAsync(user.Id, int.Parse(step.Split("*")[3]));
                     await _bot.AddNewService(_uw, user.Id, service);
                 }
-                else if (step.StartsWith("baseprice*"))
-                {
-                    if (message.Text.Fa2En().IsNumber())
-                    {
-                        var colleague_rules = _uw.OfferRulesRepository.GetById(int.Parse(step.Split("*")[2]));
-                        colleague_rules.BasePrice = int.Parse(message.Text.Fa2En());
-
-                        _uw.OfferRulesRepository.Update(colleague_rules);
-                        await _bot.SendTextMessageAsync(user.Id, "قیمت پایه همکاری سرویس با موفقیت ویرایش شد.✅",
-                            replyToMessageId: message.MessageId, 
-                            replyMarkup: MarkupKeyboards.Main(subscriber.Role));
-
-                        _uw.SubscriberRepository.ChangeStep(user.Id, "none");
-                    }
-                    else
-                    {
-                        await _bot.SendTextMessageAsync(user.Id, $"", replyToMessageId: message.MessageId);
-                    }
-                }
-
                 break;
             default:
                 break;

@@ -39,69 +39,16 @@ public class OrderMessageHandler : MessageHandler
                         {
                             var service =
                                 await _uw.ServiceRepository.GetServiceByCode(step.Replace("sendcount*", ""));
-                            var own_server = await _uw.ServerRepository.AnyServerForCollague(user.Id);
-                            if (own_server)
-                            {
-                                var count = int.Parse(message.Text.Fa2En());
-                                var capcity =
-                                    await _uw.ServerRepository.ColleagueCapacity(count * service.UserLimit, user.Id);
-                                if (capcity)
-                                {
-                                    var order = new Order()
-                                    {
-                                        Amount = 0,
-                                        TotalAmount = 0,
-                                        State = OrderState.Done,
-                                        Type = OrderType.New,
-                                        ServiceCode = service.Code,
-                                        Count = count,
-                                        UserId = user.Id,
-                                        TrackingCode = Order.GenerateNewTrackingCode()
-                                    };
-                                    await _bot.SendTextMessageAsync(user.Id, $"تعداد سفارش شما با موفقیت ثبت شد.✅",
-                                        ParseMode.Html, replyToMessageId:
-                                        message.MessageId, replyMarkup: MarkupKeyboards.Main(subscriber.Role));
-
-                                    await _bot.SendTextMessageAsync(user.Id,
-                                        $".\n" +
-                                        $"<b>♻️ تاییدیه نهایی ساخت اشتراک</b>\n\n" +
-                                        $"🔗 اشتراک : <b>{service.GetFullTitle()}</b>\n" +
-                                        $"📍 تعداد سفارش : <b>{count.En2Fa()} کانفیگ</b>\n\n" +
-                                        $"🔻 آیا اطلاعات فوق را جهت ساخت کانفیگ تایید میکنید ؟",
-                                        ParseMode.Html,
-                                        replyMarkup: OrderKeyboards
-                                            .CreateOnColleagueServerConfirmation(service, order));
-                                    _uw.OrderRepository.Add(order);
-                                    _uw.SubscriberRepository.ChangeStep(user.Id, $"none");
-                                }
-                                else
-                                {
-                                    await _bot.SendTextMessageAsync(user.Id,
-                                        $"ظرفیت سرور شما جهت دریافت این تعداد پاسخگو نیست.\n" +
-                                        $"لطفا جهت شارژ ظرفیت سرور به پشتیبانی مراجعه کنید.",
-                                        replyToMessageId: message.MessageId,
-                                        replyMarkup: MarkupKeyboards.Cancel());
-                                }
-                            }
-                            else
-                            {
-                                var colleague = await _uw.ColleagueRepository.GetByChatId(user.Id);
+                           var colleague = await _uw.ColleagueRepository.GetByChatId(user.Id);
                                 if (int.Parse(message.Text.Fa2En()) >= (colleague.Level == ColleagueLevel.Base ? 3 : 1))
                                 {
-                                    var offerRules = await _uw.OfferRulesRepository.GetByServiceCode(service.Code);
                                     var payments = _uw.PaymentMethodRepository.GetAll().Where(s => s.IsActive).ToList();
 
                                     var count = int.Parse(message.Text.Fa2En().Replace("-", ""));
-                                    var offPercent = count <= 5 ? offerRules.LessThan5Order :
-                                        count <= 15 ? offerRules.MoreThan5Order : offerRules.MoreThan15Order;
-                                    var priceAfterOff =
-                                        ((decimal)(offerRules.BasePrice - offerRules.BasePrice / 100 * offPercent))
-                                        .ChangeDecimal(0);
-
                                     var order = new Order()
                                     {
-                                        Amount = offerRules.BasePrice,
-                                        TotalAmount = priceAfterOff * count + new Random().Next(100, 999),
+                                        Amount = service.SellerPrice,
+                                        TotalAmount = (service.SellerPrice * count) + new Random().Next(100, 999),
                                         State = OrderState.WaitingForPayment,
                                         Type = OrderType.New,
                                         ServiceCode = service.Code,
@@ -129,7 +76,6 @@ public class OrderMessageHandler : MessageHandler
                                     await _bot.SendTextMessageAsync(user.Id,
                                         "حداقل تعداد در هر سفارش برای همکار ۳ عدد می باشد.");
                                 }
-                            }
                         }
                     }
                     else

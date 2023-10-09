@@ -32,7 +32,6 @@ public interface IUnitOfWork
     IPaymentMethodRepository PaymentMethodRepository { get; }
     IConfigurationRepository ConfigurationRepository { get; }
     IServerRepository ServerRepository { get; }
-    IOfferRulesRepository OfferRulesRepository { get; }
     IAccountRepository AccountRepository { get; }
     IServiceCategoryRepository ServiceCategoryRepository { get; }
 

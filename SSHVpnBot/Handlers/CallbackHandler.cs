@@ -49,7 +49,7 @@ public static class CallbackHandler
 
         var joined = await _bot.CheckJoin(chatId, MainHandler._mainchannel);
         var userInfo = await _uw.SubscriberRepository.GetByChatId(chatId);
-        if (userInfo.isActive)
+        if (userInfo.IsActive)
         {
             if (data.Equals("joined"))
             {
@@ -391,7 +391,6 @@ public static class CallbackHandler
                             $"➕ <b>{accounts.Count.En2Fa()}</b> اشتراک در مجموع\n" +
                             $"👥 <b>{accounts.GroupBy(s => s.UserId).Count().En2Fa()}</b> کاربر در مجموع\n",
                             ParseMode.Html);
-                        var colleague_offers = _uw.OfferRulesRepository.GetAll();
                         if (accounts.Count >= 20)
                         {
                             for (var page = 0; page < Math.Ceiling((decimal)accounts.Count / 20); page++)
@@ -405,8 +404,7 @@ public static class CallbackHandler
                                     var price = service?.Price ?? 0m;
                                     if (role.Equals(role == Role.Colleague))
                                         if (service is not null)
-                                            price = colleague_offers.FirstOrDefault(s =>
-                                                s.ServiceCode.Equals(service.Code)).BasePrice;
+                                            price = service.SellerPrice;
                                     ids += $"🔗 <code>{account.ClientId}</code>\n" +
                                            $"{(role == Role.Colleague ? "🧑‍💻" : "👤")} <a href='tg://user?id={account.UserId}'>{account.UserId}</a>\n" +
                                            $"{(service is not null ? $"<b>🧩 {service.GetFullTitle()} | {price.ToIranCurrency().En2Fa()} تومان</b>\n" : "")}" +
@@ -432,8 +430,7 @@ public static class CallbackHandler
                                 var price = service?.Price ?? 0m;
                                 if (role.Equals(role == Role.Colleague))
                                     if (service is not null)
-                                        price = colleague_offers.FirstOrDefault(s =>
-                                            s.ServiceCode.Equals(service.Code)).BasePrice;
+                                        price = service.SellerPrice;
                                 ids += $"🔗 <code>{account.ClientId}</code>\n" +
                                        $"{(role == Role.Colleague ? "🧑‍💻" : "👤")} <a href='tg://user?id={account.UserId}'>{account.UserId}</a>\n" +
                                        $"{(service is not null ? $"<b>🧩 {service.GetFullTitle()} | {price.ToIranCurrency().En2Fa()} تومان</b>\n" : "")}" +

@@ -77,15 +77,6 @@ public class ServerCallbackHandler : QueryHandler
             await _bot.AddNewServer(_uw, user.Id, server);
             _uw.ServerRepository.Add(server);
         }
-        else if (data.Equals("colleagueservers"))
-        {
-            var servers = await _uw.ServerRepository.GetColleagueServers();
-
-            await _bot.SendTextMessageAsync(groupId,
-                $".\n" +
-                $"سرور مورد نظر خود را جهت مدیریت انتخاب کنید :"
-                , ParseMode.Html, replyMarkup: ServerKeyboards.ColleagueServersManagement(servers));
-        }
         else if (data.StartsWith("restorebackup*"))
         {
             var server = await _uw.ServerRepository.GetServerByCode(data.Split("*")[1]);
@@ -108,17 +99,6 @@ public class ServerCallbackHandler : QueryHandler
             else
             {
                 await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "سرور مورد نظر یافت نشد.", true);
-            }
-        }
-        else if (data.Equals("colleagueserverssync"))
-        {
-            await _bot.Choosed(callBackQuery);
-
-            var servers = await _uw.ServerRepository.GetColleagueServers();
-            foreach (var server in servers.Where(s => s.IsActive).ToList())
-            {
-                MainHandler.SyncServers(server);
-                Thread.Sleep(3000);
             }
         }
         else if (data.StartsWith("update*"))
@@ -190,19 +170,19 @@ public class ServerCallbackHandler : QueryHandler
                     }
 
                     break;
-                case "category":
-                    await _bot.Choosed(callBackQuery);
-                    var categories = await _uw.ServiceCategoryRepository.GetAllCategoriesAsync();
-                    if (categories.Count is not 0)
-                        await _bot.SendTextMessageAsync(user.Id,
-                            "🌀️ دسته بندی سرور را انتخاب کنید :",
-                            replyMarkup: ServerKeyboards.ServerCategories(server,
-                                categories,
-                                callBackQuery.Message.MessageId));
-                    else
-                        await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "دسته بندی ای یافت نشد.",
-                            true);
-                    break;
+                // case "category":
+                //     await _bot.Choosed(callBackQuery);
+                //     var categories = await _uw.ServiceCategoryRepository.GetAllCategoriesAsync();
+                //     if (categories.Count is not 0)
+                //         await _bot.SendTextMessageAsync(user.Id,
+                //             "🌀️ دسته بندی سرور را انتخاب کنید :",
+                //             replyMarkup: ServerKeyboards.ServerCategories(server,
+                //                 categories,
+                //                 callBackQuery.Message.MessageId));
+                //     else
+                //         await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "دسته بندی ای یافت نشد.",
+                //             true);
+                //     break;
                 case "url":
                     await _bot.Choosed(callBackQuery);
                     await _bot.SendTextMessageAsync(user.Id, "🔗 آدرس سرور را ارسال کنید :",
@@ -403,7 +383,7 @@ public class ServerCallbackHandler : QueryHandler
                     break;
             }
         }
-        else if (data.StartsWith("serverlocation*"))
+        else if (data.StartsWith("location*"))
         {
             var server = await _uw.ServerRepository.GetServerByCode(data.Split("*")[1]);
             if (server is not null)
@@ -438,7 +418,7 @@ public class ServerCallbackHandler : QueryHandler
                 if (category is not null)
                 {
                     await _bot.Choosed(callBackQuery);
-                    server.CategoryCode = category.Code;
+                    //server.CategoryCode = category.Code;
                     _uw.ServerRepository.Update(server);
                     await _bot.DeleteMessageAsync(user.Id, callBackQuery.Message.MessageId);
                     await _bot.DeleteMessageAsync(user.Id, int.Parse(data.Split("*")[3]));
@@ -459,24 +439,11 @@ public class ServerCallbackHandler : QueryHandler
             await _bot.Choosed(callBackQuery);
             var server = await _uw.ServerRepository.GetServerByCode(data.Split("*")[1]);
             var type = data.Split("*")[2];
-            server.Type = type == nameof(ServerType.Check) ? ServerType.Check :
-                type == nameof(ServerType.Colleague) ? ServerType.Colleague : ServerType.Main;
+            server.Type = type == nameof(ServerType.Check) ? ServerType.Check : ServerType.Main;
             _uw.ServerRepository.Update(server);
             await _bot.DeleteMessageAsync(user.Id, callBackQuery.Message.MessageId);
 
-            if (type != nameof(ServerType.Colleague))
-            {
-                await _bot.AddNewServer(_uw, user.Id, server);
-            }
-            else
-            {
-                await _bot.SendTextMessageAsync(user.Id,
-                    $"👤 این سرور را به کدام همکار اختصاص میدهید ؟\n" +
-                    $"🔻شناسه کاربری همکار را ارسال کنید :",
-                    replyMarkup: MarkupKeyboards.Cancel());
-                _uw.SubscriberRepository.ChangeStep(user.Id,
-                    $"{Constants.ServerConstants}-owner*{server.Code}*{callBackQuery.Message.MessageId}");
-            }
+            await _bot.AddNewServer(_uw, user.Id, server);
         }
         else if (data.Equals("management"))
         {

@@ -14,7 +14,7 @@ public class Configuration
 public enum ConfigurationType : int
 {
     [Display(Name = "سمت مشتری")]
-    CustomerSide = 1,
+    CustomerSide = 0,
     [Display(Name = "سمت همکار")]
     CollleagueSide
 }

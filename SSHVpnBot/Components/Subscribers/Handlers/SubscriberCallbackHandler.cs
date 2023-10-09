@@ -497,7 +497,7 @@ public class SubscriberCallbackHandler : QueryHandler
                         Orders = orders != null ? orders.Value : 0,
                         Balance = balance.Value.ToIranCurrency(),
                         JoinedOn = sub.JoinedOn.ToPersianDate(),
-                        isActive = sub.isActive ? "فعال" : "غیرفعال",
+                        isActive = sub.IsActive ? "فعال" : "غیرفعال",
                         Username = sub.Username,
                         Role = sub.Role.ToDisplay(),
                         FullName = sub.FullName
@@ -596,13 +596,13 @@ public class SubscriberCallbackHandler : QueryHandler
             {
                 if (activate_to.Equals("ban"))
                 {
-                    u.isActive = false;
+                    u.IsActive = false;
                     await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "کاربر مورد نظر با موفقیت بن شد.✅",
                         true);
                 }
                 else
                 {
-                    u.isActive = true;
+                    u.IsActive = true;
                     await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "کاربر مورد نظر با موفقیت آنبن شد.✅",
                         true);
                 }

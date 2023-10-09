@@ -18,83 +18,38 @@ public class ServiceKeyboards
             });
         return new InlineKeyboardMarkup(buttonLines);
     }
-        public static IReplyMarkup ColleaguesPriceSettings(OfferRule rule)
-    {
-        return new InlineKeyboardMarkup(new List<List<InlineKeyboardButton>>
-        {
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("➕",
-                    $"{Constants.ServiceConstants}-collegueprice*{rule.ServiceCode}*less5*plus"),
-                InlineKeyboardButton.WithCallbackData($"5 >= X ({rule.LessThan5Order}%)",
-                    $"{Constants.ServiceConstants}-collegueprice*{rule.ServiceCode}*none"),
-                InlineKeyboardButton.WithCallbackData("➖",
-                    $"{Constants.ServiceConstants}-collegueprice*{rule.ServiceCode}*less5*minus")
-            },
+    // public static InlineKeyboardMarkup ServicesCategoryMangement(IEnumerable<ServiceCategory> categories)
+    // {
+    //     var buttonLines = new List<List<InlineKeyboardButton>>();
+    //     foreach (var item in categories)
+    //         buttonLines.Add(new List<InlineKeyboardButton>()
+    //         {
+    //             InlineKeyboardButton.WithCallbackData(
+    //                 $"🔗 {item.Title}",
+    //                 $"{Constants.ServiceConstants}-category*{item.Code}")
+    //         });
+    //
+    //     buttonLines.Add(new List<InlineKeyboardButton>()
+    //     {
+    //         InlineKeyboardButton.WithCallbackData($"افزودن دسته بندی جدید ➕", $"{Constants.CategoryConstants}-newcategory")
+    //     });
+    //     return new InlineKeyboardMarkup(buttonLines);
+    // }
 
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("➕",
-                    $"{Constants.ServiceConstants}-collegueprice*{rule.ServiceCode}*more5*plus"),
-                InlineKeyboardButton.WithCallbackData($"5 < X ({rule.MoreThan5Order}%)",
-                    $"{Constants.ServiceConstants}-collegueprice*{rule.ServiceCode}*none"),
-                InlineKeyboardButton.WithCallbackData("➖",
-                    $"{Constants.ServiceConstants}-collegueprice*{rule.ServiceCode}*more5*minus")
-            },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("➕",
-                    $"{Constants.ServiceConstants}-collegueprice*{rule.ServiceCode}*more15*plus"),
-                InlineKeyboardButton.WithCallbackData($"15 <= X ({rule.MoreThan15Order}%)٪",
-                    $"{Constants.ServiceConstants}-collegueprice*{rule.ServiceCode}*none"),
-                InlineKeyboardButton.WithCallbackData("➖",
-                    $"{Constants.ServiceConstants}-collegueprice*{rule.ServiceCode}*more15*minus")
-            },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("ویرایش قیمت پایه همکاری 🔘",
-                    $"{Constants.ServiceConstants}-collegueprice*{rule.ServiceCode}*updatebase")
-            },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("بازگشت 👈",
-                    $"{Constants.ServiceConstants}-service*{rule.ServiceCode}*back")
-            }
-        });
-    }
+    // public static IReplyMarkup ServiceCategories(Service service, List<ServiceCategory> categories, int message_id)
+    // {
+    //     var buttonLines = new List<List<InlineKeyboardButton>>();
+    //     foreach (var item in categories)
+    //         buttonLines.Add(new List<InlineKeyboardButton>()
+    //         {
+    //             InlineKeyboardButton.WithCallbackData(
+    //                 $"{(item.IsActive ? "🟢" : "🔴")} {item.Title}",
+    //                 $"servicecategory*{service.Code}*{item.Code}*{message_id}")
+    //         });
+    //     return new InlineKeyboardMarkup(buttonLines);
+    // }
 
-    public static InlineKeyboardMarkup ServicesCategoryMangement(IEnumerable<ServiceCategory> categories)
-    {
-        var buttonLines = new List<List<InlineKeyboardButton>>();
-        foreach (var item in categories)
-            buttonLines.Add(new List<InlineKeyboardButton>()
-            {
-                InlineKeyboardButton.WithCallbackData(
-                    $"🔗 {item.Title}",
-                    $"{Constants.ServiceConstants}-category*{item.Code}")
-            });
-
-        buttonLines.Add(new List<InlineKeyboardButton>()
-        {
-            InlineKeyboardButton.WithCallbackData($"افزودن دسته بندی جدید ➕", $"{Constants.CategoryConstants}-newcategory")
-        });
-        return new InlineKeyboardMarkup(buttonLines);
-    }
-
-    public static IReplyMarkup ServiceCategories(Service service, List<ServiceCategory> categories, int message_id)
-    {
-        var buttonLines = new List<List<InlineKeyboardButton>>();
-        foreach (var item in categories)
-            buttonLines.Add(new List<InlineKeyboardButton>()
-            {
-                InlineKeyboardButton.WithCallbackData(
-                    $"{(item.IsActive ? "🟢" : "🔴")} {item.Title}",
-                    $"servicecategory*{service.Code}*{item.Code}*{message_id}")
-            });
-        return new InlineKeyboardMarkup(buttonLines);
-    }
-
-    public static InlineKeyboardMarkup ServiceManagement(ServiceCategory category, IEnumerable<Service> services)
+    public static InlineKeyboardMarkup ServiceManagement(IEnumerable<Service> services)
     {
         var buttonLines = new List<List<InlineKeyboardButton>>();
         foreach (var item in services)
@@ -107,8 +62,8 @@ public class ServiceKeyboards
 
         buttonLines.Add(new List<InlineKeyboardButton>()
         {
-            InlineKeyboardButton.WithCallbackData($"افزودن سرویس به دسته بندی ➕",
-                $"{Constants.ServiceConstants}-newservice*{category.Code}")
+            InlineKeyboardButton.WithCallbackData($"افزودن سرویس جدید ➕",
+                $"{Constants.ServiceConstants}-newservice")
         });
         buttonLines.Add(new List<InlineKeyboardButton>()
         {
@@ -140,11 +95,11 @@ public class ServiceKeyboards
                 InlineKeyboardButton.WithCallbackData("حجم 🔋️️️",
                     $"{Constants.ServiceConstants}-update*{servicCode}*traffic")
             },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("دسته بندی سرویس 🌀",
-                    $"{Constants.ServiceConstants}-update*{servicCode}*category")
-            },
+            // new()
+            // {
+            //     InlineKeyboardButton.WithCallbackData("دسته بندی سرویس 🌀",
+            //         $"{Constants.ServiceConstants}-update*{servicCode}*category")
+            // },
             new()
             {
                 InlineKeyboardButton.WithCallbackData("حذف سرویس ✖️",
@@ -153,7 +108,7 @@ public class ServiceKeyboards
             new()
             {
                 InlineKeyboardButton.WithCallbackData("مدیریت قیمت  🤝",
-                    $"{Constants.ServiceConstants}-update*{servicCode}*collegues")
+                    $"{Constants.ServiceConstants}-update*{servicCode}*sellerprice")
             },
             new()
             {

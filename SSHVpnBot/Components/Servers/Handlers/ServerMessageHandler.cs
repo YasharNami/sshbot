@@ -60,13 +60,6 @@ public class ServerMessageHandler : MessageHandler
                             _uw.ServerRepository.Update(server);
                             _uw.SubscriberRepository.ChangeStep(user.Id, $"none");
                             break;
-                        case "sshport":
-                            server.SSHPort = int.Parse(message.Text.Fa2En());
-                            await _bot.SendTextMessageAsync(user.Id, "پورت ریموت با موفقیت ویرایش شد.✅️️️️️️️",
-                                replyMarkup: MarkupKeyboards.Main(subscriber.Role));
-                            _uw.ServerRepository.Update(server);
-                            _uw.SubscriberRepository.ChangeStep(user.Id, $"none");
-                            break;
                         case "password":
                             server.Password = message.Text.Fa2En().Encrypt();
                             await _bot.SendTextMessageAsync(user.Id, "رمز عبور سرور با موفقیت ویرایش شد ✅",
@@ -122,7 +115,7 @@ public class ServerMessageHandler : MessageHandler
                             var colleague = await _uw.ColleagueRepository.GetByChatId(long.Parse(message.Text));
                             if (colleague is not null)
                             {
-                                server.OwnerId = colleague.UserId;
+                                //server.OwnerId = colleague.UserId;
                                 _uw.ServerRepository.Update(server);
                                 await _bot.SendTextMessageAsync(user.Id,
                                     "سرور با موفقیت به همکار مورد نظر اختصاص داده شد.✅",

@@ -1,4 +1,5 @@
 using ConnectBashBot.Commons;
+using ConnectBashBot.Telegram.Handlers;
 using SSHVpnBot.Components;
 using SSHVpnBot.Components.Configurations;
 using SSHVpnBot.Components.PaymentMethods;
@@ -13,7 +14,7 @@ public class InlineKeyboards
     {
         return new InlineKeyboardMarkup(new List<List<InlineKeyboardButton>>
         {
-            new() { InlineKeyboardButton.WithUrl("عضویت در کانال 🔗️", "https://t.me/connectbash") },
+            new() { InlineKeyboardButton.WithUrl("عضویت در کانال 🔗️", $"https://t.me/rad_vip_channel") },
             new() { InlineKeyboardButton.WithCallbackData("عضو شدم ✔️", "joined") }
         });
     }
@@ -85,10 +86,10 @@ public class InlineKeyboards
                 InlineKeyboardButton.WithCallbackData("مدیریت سرور ها 🌐", $"{Constants.ServerConstants}-management"),
                 InlineKeyboardButton.WithCallbackData("لوکیشن ها 🌎️", "locations-management")
             },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("مدیریت دسته بندی ها 🌀", $"{Constants.CategoryConstants}-management")
-            },
+            // new()
+            // {
+            //     InlineKeyboardButton.WithCallbackData("مدیریت دسته بندی ها 🌀", $"{Constants.CategoryConstants}-management")
+            // },
             new()
             {
                 InlineKeyboardButton.WithCallbackData("سرویس ها 🧩", $"{Constants.ServiceConstants}-management"),
@@ -107,10 +108,10 @@ public class InlineKeyboards
             {
                 InlineKeyboardButton.WithCallbackData("ارسال پیام همگانی 📩",$"{Constants.SubscriberConstatns}-sendtoall")
             },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("Marketing Strategies 🏓", "marketing-management")
-            }
+            // new()
+            // {
+            //     InlineKeyboardButton.WithCallbackData("Marketing Strategies 🏓", "marketing-management")
+            // }
         });
     }
 

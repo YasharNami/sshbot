@@ -24,7 +24,7 @@ public class DiscountRepository : BaseRepository<Discount>, IDiscountRepository
         }
     }
 
-    public async Task<Discount> GetByDiscountNumberAsync(string discountNumber)
+    public async Task<Discount?> GetByDiscountNumberAsync(string discountNumber)
     {
         using (var db = new SqlConnection(conString))
         {

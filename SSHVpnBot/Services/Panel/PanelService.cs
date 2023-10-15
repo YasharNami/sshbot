@@ -10,7 +10,7 @@ namespace SSHVpnBot.Services.Panel;
 
 public class PanelService : IPanelService
 {
-    protected readonly string token = "lHsurBaiZDyHMSKt";
+    protected readonly string token = "1697321423UV8B5JZSDQO1M2L";
     
     private static class Methods
     {
@@ -25,7 +25,7 @@ public class PanelService : IPanelService
         public const string getOnlineClients = "online";
 
     }
-    public async Task<List<PanelClientDto>> GetAllUsersAsync(Server server)
+    public async Task<List<PanelClientDto>?> GetAllUsersAsync(Server server)
     {
         using (var httpClient = new HttpClient())
         {
@@ -33,13 +33,17 @@ public class PanelService : IPanelService
             {
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var httpResponseMessage =
-                    await httpClient.PostAsJsonAsync($"{server.Url}/apiV1/api.php?token={token}", 
-                        new Request(Methods.getAllClients));
+                    await httpClient.GetAsync($"{server.Url}/api/{token}/listuser");
                 var value = await httpResponseMessage.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<ApiResult<List<PanelClientDto>>>(value);
-                if (response.response_code.Equals(200))
-                    return response.data;
-                else return new List<PanelClientDto>();
+                try
+                {
+                    var response = JsonConvert.DeserializeObject<List<PanelClientDto>>(value);
+                    return response;
+                }
+                catch (Exception e)
+                {
+                    return null;
+                }
             }
             catch (Exception e)
             {
@@ -48,21 +52,22 @@ public class PanelService : IPanelService
             }
         }
     }
-    public async Task<bool> CreateNewClientAsync(Server server,CreateNewClientDto client)
+    public async Task<bool?> CreateNewClientAsync(Server server,CreateNewClientDto client)
     {
         using (var httpClient = new HttpClient())
         {
             try
             {
+                client.Token = token;
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var httpResponseMessage =
-                    await httpClient.PostAsJsonAsync($"{server.Url}/apiV1/api.php?token={token}", 
+                    await httpClient.PostAsJsonAsync($"{server.Url}/api/adduser", 
                         client);
                 var value = await httpResponseMessage.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<ApiResult<bool>>(value);
-                if (response.response_code.Equals(200))
+                var response = JsonConvert.DeserializeObject<ApiResult>(value);
+                if (response.message.Equals("User Created"))
                 {
-                    return response.data;
+                    return true;
                 }
                 else
                 {
@@ -76,136 +81,20 @@ public class PanelService : IPanelService
             }
         }
     }
-    public async Task<bool> UpdateClientAsync(Server server,UpdateClientDto client)
+    public async Task<ApiResult?> UpdateClientAsync(Server server,UpdateClientDto client)
     {
         using (var httpClient = new HttpClient())
         {
             try
             {
+                client.Token = token;
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var httpResponseMessage =
-                    await httpClient.PostAsJsonAsync($"{server.Url}/apiV1/api.php?token={token}", 
+                    await httpClient.PostAsJsonAsync($"{server.Url}/api/edituser", 
                         client);
                 var value = await httpResponseMessage.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<ApiResult<bool>>(value);
-                if (response.response_code.Equals(200))
-                    return response.data;
-                else return false;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return false;
-            }
-        }
-    }
-    public async Task<bool> DeleteClientAsync(Server server,DeleteClientDto client)
-    {
-        using (var httpClient = new HttpClient())
-        {
-            try
-            {
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var httpResponseMessage =
-                    await httpClient.PostAsJsonAsync($"{server.Url}/apiV1/api.php?token={token}", 
-                        client);
-                var value = await httpResponseMessage.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<ApiResult<bool>>(value);
-                if (response.response_code.Equals(200))
-                    return response.data;
-                else return false;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return false;
-            }
-        }
-    }
-    public async Task<bool> SuspendClientAsync(Server server,SuspendClientDto client)
-    {
-        using (var httpClient = new HttpClient())
-        {
-            try
-            {
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var httpResponseMessage =
-                    await httpClient.PostAsJsonAsync($"{server.Url}/apiV1/api.php?token={token}", 
-                        client);
-                var value = await httpResponseMessage.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<ApiResult<bool>>(value);
-                if (response.response_code.Equals(200))
-                    return response.data;
-                else return false;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return false;
-            }
-        }
-    }
-    public async Task<bool> UnSuspendClientAsync(Server server,UnSuspendClientDto client)
-    {
-        using (var httpClient = new HttpClient())
-        {
-            try
-            {
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var httpResponseMessage =
-                    await httpClient.PostAsJsonAsync($"{server.Url}/apiV1/api.php?token={token}", 
-                        client);
-                var value = await httpResponseMessage.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<ApiResult<bool>>(value);
-                if (response.response_code.Equals(200))
-                    return response.data;
-                else return false;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return false;
-            }
-        }
-    }
-    public async Task<bool> GetClientTrafficAsync(Server server,GetClientTrafficsDto client)
-    {
-        using (var httpClient = new HttpClient())
-        {
-            try
-            {
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var httpResponseMessage =
-                    await httpClient.PostAsJsonAsync($"{server.Url}/apiV1/api.php?token={token}", 
-                        client);
-                var value = await httpResponseMessage.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<ApiResult<bool>>(value);
-                if (response.response_code.Equals(200))
-                    return response.data;
-                else return false;
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
-                return false;
-            }
-        }
-    }
-    public async Task<UpdateClientPasswordResponse?> UpdateClientPasswordAsync(Server server,UpdateClientPasswordDto client)
-    {
-        using (var httpClient = new HttpClient())
-        {
-            try
-            {
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                var httpResponseMessage =
-                    await httpClient.PostAsJsonAsync($"{server.Url}/apiV1/api.php?token={token}", 
-                        client);
-                var value = await httpResponseMessage.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<ApiResult<UpdateClientPasswordResponse>>(value);
-                if (response.response_code.Equals(200))
-                    return response.data;
-                else return null;
+                var response = JsonConvert.DeserializeObject<ApiResult>(value);
+                return response;
             }
             catch (Exception e)
             {
@@ -214,6 +103,117 @@ public class PanelService : IPanelService
             }
         }
     }
+    public async Task<ApiResult?> DeleteClientAsync(Server server,DeleteClientDto client)
+    {
+        using (var httpClient = new HttpClient())
+        {
+            try
+            {
+                client.Token = token;
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var httpResponseMessage =
+                    await httpClient.PostAsJsonAsync($"{server.Url}/api/delete", 
+                        client);
+                var value = await httpResponseMessage.Content.ReadAsStringAsync();
+                var response = JsonConvert.DeserializeObject<ApiResult>(value);
+                return response;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
+            }
+        }
+    }
+    public async Task<ApiResult?> SuspendClientAsync(Server server,SuspendClientDto client)
+    {
+        using (var httpClient = new HttpClient())
+        {
+            try
+            {
+                client.Token = token;
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var httpResponseMessage =
+                    await httpClient.PostAsJsonAsync($"{server.Url}/api/deactive", 
+                        client);
+                var value = await httpResponseMessage.Content.ReadAsStringAsync();
+                var response = JsonConvert.DeserializeObject<ApiResult>(value);
+                return response;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
+            }
+        }
+    }
+    public async Task<ApiResult?> UnSuspendClientAsync(Server server,UnSuspendClientDto client)
+    {
+        using (var httpClient = new HttpClient())
+        {
+            try
+            {
+                client.Token = token;
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var httpResponseMessage =
+                    await httpClient.PostAsJsonAsync($"{server.Url}/api/active", 
+                        client);
+                var value = await httpResponseMessage.Content.ReadAsStringAsync();
+                var response = JsonConvert.DeserializeObject<ApiResult>(value);
+                return response;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
+            }
+        }
+    }
+    
+    public async Task<ApiResult?> ExtendClientAsync(Server server,ExtendClientDto client)
+    {
+        using (var httpClient = new HttpClient())
+        {
+            try
+            {
+                client.token = token;
+                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                var httpResponseMessage =
+                    await httpClient.PostAsJsonAsync($"{server.Url}/api/renewal", 
+                        client);
+                var value = await httpResponseMessage.Content.ReadAsStringAsync();
+                var response = JsonConvert.DeserializeObject<ApiResult>(value);
+                return response;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                return null;
+            }
+        }
+    }
+    // public async Task<bool> GetClientTrafficAsync(Server server,GetClientTrafficsDto client)
+    // {
+    //     using (var httpClient = new HttpClient())
+    //     {
+    //         try
+    //         {
+    //             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    //             var httpResponseMessage =
+    //                 await httpClient.PostAsJsonAsync($"{server.Url}/apiV1/api.php?token={token}", 
+    //                     client);
+    //             var value = await httpResponseMessage.Content.ReadAsStringAsync();
+    //             var response = JsonConvert.DeserializeObject<ApiResult<bool>>(value);
+    //             return response.data;
+    //         }
+    //         catch (Exception e)
+    //         {
+    //             Console.WriteLine(e.Message);
+    //             return false;
+    //         }
+    //     }
+    // }
+  
     public async Task<List<OnlineClient>> GetOnlineClientsAsync(Server server)
     {
         using (var httpClient = new HttpClient())
@@ -222,13 +222,10 @@ public class PanelService : IPanelService
             {
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var httpResponseMessage =
-                    await httpClient.PostAsJsonAsync($"{server.Url}/apiV1/api.php?token={token}",
-                        new Request(Methods.getOnlineClients));
+                    await httpClient.GetAsync($"{server.Url}/api/{token}/online");
                 var value = await httpResponseMessage.Content.ReadAsStringAsync();
                 var response = JsonConvert.DeserializeObject<ApiResult<List<OnlineClient>>>(value);
-                if (response.response_code.Equals(200))
-                    return response.data;
-                else return new List<OnlineClient>();
+                return response.data;
             }
             catch (Exception e)
             {

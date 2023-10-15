@@ -7,10 +7,10 @@ public static class ServiceUtillities
     public static string GetFullTitle(this Service service)
     {
         var traffic = service.Traffic == 0 ? "نامحدود" : $"{service.Traffic.ToString().En2Fa()} گیگ";
-        var month = service.Duration.Equals(30) ? "یک ماهه" :
-            service.Duration.Equals(60) ? "دو ماهه" :
-            service.Duration.Equals(90) ? "سه ماهه" :
-            service.Duration.Equals(180) ? "شش ماهه" : service
+        var month = service.Duration.Equals(30) || service.Duration.Equals(31) ? "یک ماهه" :
+            service.Duration.Equals(60) || service.Duration.Equals(62) ? "دو ماهه" :
+            service.Duration.Equals(90) || service.Duration.Equals(93) ? "سه ماهه" :
+            service.Duration.Equals(180) || service.Duration.Equals(186) ? "شش ماهه" : service
                 .Duration.ToString().En2Fa() + " روزه";
 
         var users = service.UserLimit.Equals(1) ? "تک کاربره" :
@@ -22,10 +22,10 @@ public static class ServiceUtillities
     public static string GetFullTitle(int days, int traffic, int user_limit)
     {
         var gig = traffic == 0 ? "نامحدود" : $"{traffic.ToString().En2Fa()} گیگ";
-        var month = days.Equals(30) ? "یک ماهه" :
-            days.Equals(60) ? "دو ماهه" :
-            days.Equals(90) ? "سه ماهه" :
-            days.Equals(180) ? "شش ماهه" : days.ToString().En2Fa() + " روزه";
+        var month = days.Equals(30) || days.Equals(31) ? "یک ماهه" :
+            days.Equals(60) || days.Equals(62) ? "دو ماهه" :
+            days.Equals(90) || days.Equals(93) ? "سه ماهه" :
+            days.Equals(180) || days.Equals(186) ? "شش ماهه" : days.ToString().En2Fa() + " روزه";
 
         var users = user_limit.Equals(1) ? "تک کاربره" :
             user_limit.Equals(2) ? "دو کاربره" : $"{user_limit.ToString().En2Fa()} کاربره";

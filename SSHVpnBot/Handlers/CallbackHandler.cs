@@ -405,7 +405,7 @@ public static class CallbackHandler
                                     if (role.Equals(role == Role.Colleague))
                                         if (service is not null)
                                             price = service.SellerPrice;
-                                    ids += $"🔗 <code>{account.ClientId}</code>\n" +
+                                    ids += $"🔗 <code>{account.UserName}</code>\n" +
                                            $"{(role == Role.Colleague ? "🧑‍💻" : "👤")} <a href='tg://user?id={account.UserId}'>{account.UserId}</a>\n" +
                                            $"{(service is not null ? $"<b>🧩 {service.GetFullTitle()} | {price.ToIranCurrency().En2Fa()} تومان</b>\n" : "")}" +
                                            $"🕓 <b>{account.EndsOn.ConvertToPersianCalendar()}</b>\n\n\n";
@@ -431,7 +431,7 @@ public static class CallbackHandler
                                 if (role.Equals(role == Role.Colleague))
                                     if (service is not null)
                                         price = service.SellerPrice;
-                                ids += $"🔗 <code>{account.ClientId}</code>\n" +
+                                ids += $"🔗 <code>{account.UserName}</code>\n" +
                                        $"{(role == Role.Colleague ? "🧑‍💻" : "👤")} <a href='tg://user?id={account.UserId}'>{account.UserId}</a>\n" +
                                        $"{(service is not null ? $"<b>🧩 {service.GetFullTitle()} | {price.ToIranCurrency().En2Fa()} تومان</b>\n" : "")}" +
                                        $"🕓 <b>{account.EndsOn.ConvertToPersianCalendar()}</b>\n\n\n";

@@ -44,7 +44,7 @@ public static class GroupHandler
             if (message.Text.Equals("/panel"))
             {
                 var server =  _uw.ServerRepository.GetAll();
-                var users = _uw.PanelService.GetOnlineClientsAsync(server.First());
+                var users = _uw.PanelService.GetAllUsersAsync(server.First());
                 await _bot.SendTextMessageAsync(groupId,
                     "قصد چه کاری را دارید؟",
                     replyMarkup: InlineKeyboards.AdminPanel());
@@ -247,41 +247,7 @@ public static class GroupHandler
                     await _bot.SendTextMessageAsync(groupId, "کاربر مورد نظر یافت نشد.",
                         replyToMessageId: message.MessageId);
             }
-
-            // else if (message.Text.Equals("migmig"))
-            // {
-            //     await MainHandler.MigrsteClientInboundAsync();
-            // }
-            else if (message.Text.Equals("/month"))
-            {
-                if (userInfo.Role != Role.Subscriber && userInfo.Role != Role.Colleague)
-                    await MainHandler.Today(groupId);
-            }
-            // else if (message.Text.StartsWith("/query") &&
-            //          (userInfo.Role.Equals(Role.Admin) || userInfo.Role.Equals(Role.Owner)))
-            // {
-            //     try
-            //     {
-            //         var query = message.Text.Replace("/query ", "");
-            //         if (query.ToLower().StartsWith("delete from ") || query.ToLower().StartsWith("update "))
-            //             using (var db = new SqlConnection(
-            //                        @"Server=65.21.154.21\MSSQLSERVER2019;Database=cbdb;User Id=sa;Password=EqUxJ53xx3ULRAtNw7FH;TrustServerCertificate=true;"))
-            //             {
-            //                 await db.QueryAsync(query);
-            //             }
-            //
-            //         if (query.ToLower().StartsWith("delete from "))
-            //             await _bot.SendTextMessageAsync(groupId, $"عملیات حذف با موفقیت انجام شد.✅",
-            //                 replyToMessageId: message.MessageId);
-            //         else if (query.ToLower().StartsWith("update "))
-            //             await _bot.SendTextMessageAsync(chatId, $"عملیات ویرایش با موفقیت انجام شد.✅",
-            //                 replyToMessageId: message.MessageId);
-            //     }
-            //     catch (Exception e)
-            //     {
-            //         Console.WriteLine(e);
-            //     }
-            // }
+            
             else if (message.Text.StartsWith("/usage"))
             {
                 var result = new Guid();
@@ -294,9 +260,17 @@ public static class GroupHandler
                         if (account is not null)
                         {
                             var server = await _uw.ServerRepository.GetServerByCode(account.ServerCode);
-                            if (server.IsActive)
+                            if (server!.IsActive)
                             {
-                               
+                                var users = await _uw.PanelService.GetAllUsersAsync(server);
+                                var client = users!.FirstOrDefault(s => s.Username == account.UserName);
+                                if (client is not null)
+                                {
+                                    Service? service = await _uw.ServiceRepository.GetServiceByCode(account.ServiceCode);
+                                    Order? order = await _uw.OrderRepository.GetByTrackingCode(account.OrderCode);
+                                    await _bot.AdminAccountInfo(_uw, groupId, server, client, account, service!, order!);
+                                }
+                                else await _bot.SendTextMessageAsync(groupId, "اشتراک در پنل یافت نشد.", ParseMode.Html, cancellationToken: cancellationToken);
                             }
                             else
                             {

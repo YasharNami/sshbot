@@ -1,10 +1,13 @@
 namespace SSHVpnBot.Services.Panel.Apis;
 
+public class ApiResult
+{
+    public string message { get; set; }
+}
+
 public class ApiResult<T>
 {
-    public T? data { get; set; }
-    public int response_code { get; set; }
-    public string response_desc { get; set; }
+    public T data { get; set; }
 }
 
 public class Request

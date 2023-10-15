@@ -26,6 +26,7 @@ public class ServerMessageHandler : MessageHandler
                 {
                     var server = await _uw.ServerRepository.GetServerByCode(step.Split("*")[1]);
                     var property = step.Split("*")[2];
+                    //await _bot.DeleteMessageAsync(user.Id, int.Parse(step.Split("*")[3]));
 
                     switch (property)
                     {
@@ -102,7 +103,6 @@ public class ServerMessageHandler : MessageHandler
                             break;
                     }
 
-                    await _bot.DeleteMessageAsync(user.Id, int.Parse(step.Split("*")[3]));
                     await _bot.AddNewServer(_uw, user.Id, server);
                 }
                 else if (step.StartsWith("owner*"))

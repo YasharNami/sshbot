@@ -339,7 +339,7 @@ public class OrderCallbackHandler : QueryHandler
                                 $"<b>اطلاعات تمدید ثبت شده 🔵️</b>\n\n" +
                                 $"🔖 <b>#{order.TrackingCode}</b>\n" +
                                 $"🔗 <b>{order.Count.En2Fa()} کانفیگ {service.GetFullTitle()}</b>\n" +
-                                $"🔖 <code>{account.ClientId}</code>\n" +
+                                $"🔖 <b>{account.UserName}</b>\n" +
                                 $"💳 <b>{order.TotalAmount.ToIranCurrency().En2Fa()} تومان</b>\n" +
                                 $"📅 <b>{order.CreatedOn.ConvertToPersianCalendar().En2Fa()} ساعت {order.CreatedOn.ToString("HH:mm").En2Fa()}</b>\n" +
                                 $"👤 <a href='tg://user?id={user.Id}'>#U{user.Id}</a> | {user.FirstName + " " + user.LastName}\n\n" +

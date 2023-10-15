@@ -2,94 +2,82 @@ namespace SSHVpnBot.Services.Panel.Models;
 
 public class PanelClientDto
 {
-    public string id { get; set; }
-
-    public string username { get; set; }
-
-    public string password { get; set; }
-
-    public string email { get; set; }
-
-    public string mobile { get; set; }
-
-    public string multiuser { get; set; }
-
-    public DateTime startdate { get; set; }
-
-    public DateTime finishdate { get; set; }
-
-    public string enable { get; set; }
-
-    public string traffic { get; set; }
-
-    public string referral { get; set; }
-
-    public string info { get; set; }
-
-    public string days { get; set; }
-    public string telegramid { get; set; }
-    //public string userport { get; set; }
-    //public string usersub { get; set; }
+    public int Id { get; set; }
+    public string Username { get; set; }
+    public string Password { get; set; }
+    public string Email { get; set; }
+    public string Mobile { get; set; }
+    public string Multiuser { get; set; }
+    public DateTime StartDate { get; set; }
+    public string EndDate { get; set; }
+    public string DateOneConnect { get; set; }
+    public string CustomerUser { get; set; }
+    public string Status { get; set; }
+    public string Traffic { get; set; }
+    public string Referral { get; set; }
+    public string Desc { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+    public List<ClientStats> Stats { get; set; }
 }
 
+public class ClientStats
+{
+    public int Id { get; set; }
+    public string Username { get; set; }
+    public string Download { get; set; }
+    public string Upload { get; set; }
+    public string Total { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
+}
 public class CreateNewClientDto
 {
-    public string method { get; set; }
-
-    public string username { get; set; }
-
-    public string password { get; set; }
-
-    public string email { get; set; }
-
-    public string mobile { get; set; }
-    public int multiuser { get; set; }
-
-    public string finishdate { get; set; }
-
-    public int traffic { get; set; }
-
-    public string referral { get; set; }
+    public string Token { get; set; }
+    public string Username { get; set; }
+    public string Password { get; set; }
+    public string Email { get; set; }
+    public string Mobile { get; set; }
+    public int Multiuser { get; set; }
+    public int Traffic { get; set; }
+    public string type_traffic { get; set; }
+    public DateTime ExpDate { get; set; }
+    public string Desc { get; set; }
 }
 
 public class UpdateClientDto
 {
-    public string method { get; set; }
-
-    public string username { get; set; }
-
-    public string password { get; set; }
-
-    public string email { get; set; }
-
-    public string mobile { get; set; }
-    public int multiuser { get; set; }
-
-    public string finishdate { get; set; }
-
-    public int traffic { get; set; }
-
-    public string referral { get; set; }
+    public string Token { get; set; }
+    public string Username { get; set; }
+    public string Password { get; set; }
+    public string Email { get; set; }
+    public string Mobile { get; set; }
+    public int Multiuser { get; set; }
+    public int Traffic { get; set; }
+    public string TypeTraffic { get; set; }
+    public string Activate { get; set; }
+    public DateTime ExpDate { get; set; }
+    public string Desc { get; set; }
 }
 
 public class DeleteClientDto
 {
-    public string method { get; set; }
+    public string Token { get; set; }
 
-    public string username { get; set; }
+    public string Username { get; set; }
 }
 
 public class SuspendClientDto
 {
-    public string method { get; set; }
+    public string Token { get; set; }
 
-    public string username { get; set; }
+    public string Username { get; set; }
 }
 public class UnSuspendClientDto
 {
-    public string method { get; set; }
+    public string Token { get; set; }
 
-    public string username { get; set; }
+    public string Username { get; set; }
 }
 public class GetClientTrafficsDto
 {
@@ -130,4 +118,13 @@ public class OnlineClient
     public string ip { get; set; }
 
     public string pid { get; set; }
+}
+
+public class ExtendClientDto
+{
+    public string token { get; set; }
+    public string username { get; set; }
+    public string day_date { get; set; }
+    public string re_date { get; set; }
+    public string re_traffic { get; set; }
 }

@@ -132,13 +132,13 @@ public class AccountCallbackHandler : QueryHandler
                     await _bot.SendTextMessageAsync(user.Id,
                         $".\n" +
                         $"✖️️️️️ کانفیگ با شناسه زیر با موفقیت حذف شد :\n\n" +
-                        $"🔗 <code>{account.ClientId}</code>\n" +
+                        $"🔗 <code>{account.UserName}</code>\n" +
                         $"{(account.Note.HasValue() ? $"📝 یادداشت : {account.Note}" : "")}",
                         ParseMode.Html);
-                    await _bot.SendTextMessageAsync(MainHandler._v2raygroup,
+                    await _bot.SendTextMessageAsync(MainHandler._panelGroup,
                         $".\n" +
                         $"حذف_کانفیگ توسط همکار رخ داد. ✖️️️️️\n\n" +
-                        $"🔗 <code>{account.ClientId}</code>\n" +
+                        $"🔗 <code>{account.UserName}</code>\n" +
                         $"{(account.Note.HasValue() ? $"📝 یادداشت : {account.Note}" : "")}",
                         ParseMode.Html);
                 }
@@ -200,7 +200,7 @@ public class AccountCallbackHandler : QueryHandler
                 await _bot.SendTextMessageAsync(user.Id,
                     ".\n" +
                     "📝 <b>در حال تنظیم یادداشت برای :</b>\n" +
-                    $"🔖 <code>{account.ClientId}</code>\n\n" +
+                    $"🔖 <code>{account.UserName}</code>\n\n" +
                     "🗒 لطفا یک نام (یادداشت) برای کانفیگ  خود وارد کنید، مثلا اسم، فامیل یا شماره‌ تلفن مشتری می‌تواند انتخاب خوبی باشد.\n\n" +
                     "این اسم به شما کمک می‌کند تا بعدا بتوانید این کانفیگ را راحت‌تر از لیست کانفیگ‌های خود دریافت کنید. سعی کنید از نام‌های تکراری استفاده نکنید. (این نام به مشتری نشان داده نمی‌شود)"
                     , ParseMode.Html,

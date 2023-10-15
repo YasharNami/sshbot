@@ -11,7 +11,7 @@ public interface IServerRepository : IBaseRepository<Server>
     Task<Server> GetActiveOne(int spaceNeeded);
     Task<Server?> GetActiveOneByCategoryCode(int spapce, string category);
     Task<Server> GetTestServer();
-    Task<bool> Capacity(int neededCapacity, string category);
+    Task<bool> Capacity(int neededCapacity);
     bool AnyByDomain(string servervCode, string domain);
     Task<Server?> GetByDomainAsync(string domain);
 }

@@ -151,7 +151,7 @@ public class ServerCallbackHandler : QueryHandler
                                         Server = server.Domain,
                                         UserId = report.UserId,
                                         Code = report.Code,
-                                        ClientId = account.ClientId,
+                                        ClientId = account.UserName,
                                         Url = account.Url,
                                         Description = report.Description != null
                                             ? report.Description
@@ -257,18 +257,19 @@ public class ServerCallbackHandler : QueryHandler
                     if (server.Url != "تنظیم نشده" && server.Username != "تنظیم نشده" &&
                         server.Password != "تنظیم نشده")
                     {
-                        //var res = await _uw.PanelService.Login(server);
-                        //
-                        // server.Session = StringExtension.Encrypt(res.session);
-                        // _uw.ServerRepository.Update(server);
-                        // if (res.success)
-                        //     await _bot.AnswerCallbackQueryAsync(callBackQuery.Id,
-                        //         "سرور با موفقیت متصل شد.✔️",
-                        //         true);
-                        // else
-                        //     await _bot.AnswerCallbackQueryAsync(callBackQuery.Id,
-                        //         "خطایی در اتصال سرور پیش آمد.✔️",
-                        //         true);
+                        
+                        var res = await _uw.PanelService.GetAllUsersAsync(server);
+                        if (res is not null)
+                        {
+                            await _bot.AnswerCallbackQueryAsync(callBackQuery.Id,
+                                   "سرور با موفقیت متصل شد.✔️",true);
+                        }
+                        else
+                        {
+                            await _bot.AnswerCallbackQueryAsync(callBackQuery.Id,
+                                    "خطایی در اتصال سرور پیش آمد.✔️",
+                                    true);
+                        }
                     }
                     else
                     {
@@ -351,26 +352,26 @@ public class ServerCallbackHandler : QueryHandler
                         server.Username != "تنظیم نشده" &&
                         server.Password != "تنظیم نشده")
                     {
-                        // var res = await _uw.PanelService.Login(server);
-                        // if (res.success)
-                        // {
-                        //     server.IsActive = true;
-                        //     _uw.ServerRepository.Update(server);
-                        //     await _bot.DeleteMessageAsync(user.Id, callBackQuery.Message.MessageId);
-                        //     await _bot.SendTextMessageAsync(MainHandler._managementgroup,
-                        //         $"<b>سرور جدید به شرح زیر توسط {user.FirstName + " " + user.LastName} ویرایش/اضافه شد.✔️</b>\n\n" +
-                        //         $"🔖 شناسه سرور : <code>#{server.Code}</code>\n" +
-                        //         $"🔗 آدرس سرور :\n" +
-                        //         $" <code>{server.Url}</code>\n" +
-                        //         $"🔘 نام کاربری : <code>{server.Username}</code>\n" +
-                        //         $"👥 حداکقر ظرفیت : <b>{server.Capacity.ToString().En2Fa()} کاربر</b>\n",
-                        //         ParseMode.Html);
-                        // }
-                        // else
-                        // {
-                        //     await _bot.AnswerCallbackQueryAsync(callBackQuery.Id,
-                        //         "نام کاربری یا رمز عبور سرور صحیحی نمی باشد.", true);
-                        // }
+                        var res = await _uw.PanelService.GetAllUsersAsync(server);
+                        if (res is not null)
+                        {
+                            server.IsActive = true;
+                            _uw.ServerRepository.Update(server);
+                            await _bot.DeleteMessageAsync(user.Id, callBackQuery.Message.MessageId);
+                            await _bot.SendTextMessageAsync(MainHandler._managementgroup,
+                                $"<b>سرور جدید به شرح زیر توسط {user.FirstName + " " + user.LastName} ویرایش/اضافه شد.✔️</b>\n\n" +
+                                $"🔖 شناسه سرور : <code>#{server.Code}</code>\n" +
+                                $"🔗 آدرس سرور :\n" +
+                                $" <code>{server.Url}</code>\n" +
+                                $"🔘 نام کاربری : <code>{server.Username}</code>\n" +
+                                $"👥 حداکقر ظرفیت : <b>{server.Capacity.ToString().En2Fa()} کاربر</b>\n",
+                                ParseMode.Html);
+                        }
+                        else
+                        {
+                            await _bot.AnswerCallbackQueryAsync(callBackQuery.Id,
+                                "نام کاربری یا رمز عبور سرور صحیحی نمی باشد.", true);
+                        }
                     }
                     else
                     {

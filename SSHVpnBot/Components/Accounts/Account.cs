@@ -13,7 +13,8 @@ public class Account
     }
 
     public int Id { get; set; }
-    public string ClientId { get; set; }
+    public string UserName { get; set; }
+    public string Password { get; set; }
     public AccountType Type { get; set; }
     public long UserId { get; set; }
     public DateTime StartsOn { get; set; }
@@ -27,7 +28,6 @@ public class Account
     public bool IsRemoved { get; set; }
     public string OrderCode { get; set; }
     public string ServiceCode { get; set; }
-    public int Port { get; set; }
     public double Traffic { get; set; }
     public double UsedTraffic { get; set; }
     public string Email { get; set; }
@@ -35,13 +35,21 @@ public class Account
     public string AccountCode { get; set; }
     public string Note { get; set; }
     public int ExtendNotifyCount { get; set; }
-    public int BlockAlertCount { get; set; }
-    
 
     public static string GenerateNewAccountCode()
     {
         return "AC" +
                DateTime.UtcNow.Ticks.ToString().Substring(6, 12);
+    }
+    
+    public static string GenerateNewClientEmail(Order order)
+    {
+        return $"RAD-{order.TrackingCode}-{DateTime.UtcNow.Ticks.ToString().Substring(12, 6)}@radvpn.com" ;
+    }
+    
+    public static string GenerateNewAccountPassword()
+    {
+        return DateTime.UtcNow.Ticks.ToString().Substring(12, 6);
     }
 }
 

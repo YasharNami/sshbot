@@ -2,6 +2,7 @@ using ConnectBashBot.Commons;
 using SSHVpnBot.Components.Colleagues;
 using SSHVpnBot.Components.Servers;
 using SSHVpnBot.Components.Services;
+using SSHVpnBot.Services.Panel.Models;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace SSHVpnBot.Components.Accounts.Keyboards;
@@ -299,8 +300,7 @@ public class AccountKeyboards
         });
     }
 
-    public static IReplyMarkup ConfigManagement(int limitIp, string clientId, Server server, Account account, int port,
-        bool enable)
+    public static IReplyMarkup ConfigManagement(PanelClientDto client, Server server, Account account)
     {
         return new InlineKeyboardMarkup(new List<List<InlineKeyboardButton>>
         {
@@ -311,21 +311,21 @@ public class AccountKeyboards
             new()
             {
                 InlineKeyboardButton.WithCallbackData("حذف کانفیگ ✖️",
-                    $"{Constants.AccountConstants}-cnf*rm*{account.AccountCode}*{server.Id}*{port}")
+                    $"{Constants.AccountConstants}-cnf*rm*{account.AccountCode}*{server.Id}")
             },
             new()
             {
                 InlineKeyboardButton.WithCallbackData("ریست کانفیگ ♻️️",
-                    $"{Constants.AccountConstants}-cnf*reset*{account.AccountCode}*{server.Id}*{port}"),
+                    $"{Constants.AccountConstants}-cnf*reset*{account.AccountCode}*{server.Id}"),
                 InlineKeyboardButton.WithCallbackData("ریست لینک ♻️️",
-                    $"{Constants.AccountConstants}-cnf*reseturl*{account.AccountCode}*{server.Id}*{port}")
+                    $"{Constants.AccountConstants}-cnf*reseturl*{account.AccountCode}*{server.Id}")
             },
             new()
             {
                 InlineKeyboardButton.WithCallbackData("تمدید 📌️",
-                    $"{Constants.AccountConstants}-cnf*extend*{account.AccountCode}*{server.Id}*{port}"),
-                InlineKeyboardButton.WithCallbackData($"{(enable ? "مسدودی 🔴" : "رفع مسدودی 🟢")}",
-                    $"{Constants.AccountConstants}-cnf*{(enable ? "block" : "unblock")}*{account.AccountCode}*{server.Id}*{port}")
+                    $"{Constants.AccountConstants}-cnf*extend*{account.AccountCode}*{server.Id}"),
+                InlineKeyboardButton.WithCallbackData($"{(account.State.Equals(AccountState.Active) ? "مسدودی 🔴" : "رفع مسدودی 🟢")}",
+                    $"{Constants.AccountConstants}-cnf*{(account.State.Equals(AccountState.Active) ? "block" : "unblock")}*{account.AccountCode}*{server.Id}")
             },
             new()
             {
@@ -335,28 +335,28 @@ public class AccountKeyboards
             new()
             {
                 InlineKeyboardButton.WithCallbackData($"♻️ ارسال مجدد کانفیگ",
-                    $"{Constants.AccountConstants}-cnf*resend*{account.AccountCode}*{server.Id}*{port}")
+                    $"{Constants.AccountConstants}-cnf*resend*{account.AccountCode}*{server.Id}")
             },
             new()
             {
                 InlineKeyboardButton.WithCallbackData($"🕒 {account.EndsOn.ConvertToPersianCalendar()}",
-                    $"{Constants.AccountConstants}-cnf*none*{clientId}*{server.Id}*{port}"),
+                    $"{Constants.AccountConstants}-cnf*none*{client.Username}*{server.Id}"),
             },
             new()
             {
                 InlineKeyboardButton.WithCallbackData("کاهش روز ➖",
-                    $"{Constants.AccountConstants}-cnf*minusday*{account.AccountCode}*{server.Id}*{port}"),
+                    $"{Constants.AccountConstants}-cnf*minusday*{account.AccountCode}*{server.Id}"),
                 InlineKeyboardButton.WithCallbackData("افزایش روز ➕",
-                    $"{Constants.AccountConstants}-cnf*plusday*{account.AccountCode}*{server.Id}*{port}")
+                    $"{Constants.AccountConstants}-cnf*plusday*{account.AccountCode}*{server.Id}")
             },
             new()
             {
                 InlineKeyboardButton.WithCallbackData("➖",
-                    $"{Constants.AccountConstants}-cnf*minus*{account.AccountCode}*{server.Id}*{port}"),
-                InlineKeyboardButton.WithCallbackData($"📱 {limitIp.ToString().En2Fa()} کاربر",
-                    $"{Constants.AccountConstants}-cnf*none*{clientId}*{server.Id}*{port}"),
+                    $"{Constants.AccountConstants}-cnf*minus*{account.AccountCode}*{server.Id}"),
+                InlineKeyboardButton.WithCallbackData($"📱 {client.Multiuser.En2Fa()} کاربر",
+                    $"{Constants.AccountConstants}-cnf*none*{client.Username}*{server.Id}"),
                 InlineKeyboardButton.WithCallbackData("➕",
-                    $"{Constants.AccountConstants}-cnf*plus*{account.AccountCode}*{server.Id}*{port}")
+                    $"{Constants.AccountConstants}-cnf*plus*{account.AccountCode}*{server.Id}")
             }
         });
     }

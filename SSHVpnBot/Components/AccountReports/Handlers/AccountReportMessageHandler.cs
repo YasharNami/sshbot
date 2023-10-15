@@ -37,8 +37,8 @@ public class AccountReportMessageHandler : MessageHandler
                             await _bot.SendTextMessageAsync(report.UserId,
                                 $"💌 اطلاعیه جدید دریافت شد.\n\n" +
                                 $"در پاسخ به گزارش کندی روی سرور :\n" +
-                                $"🔗 <code>{server.Domain}:{account.Port}</code>\n\n" +
-                                $"🔖 <code>{account.ClientId}</code>\n\n" +
+                                $"🔗 <code>{server.Domain}</code>\n\n" +
+                                $"🔖 <code>{account.UserName}</code>\n\n" +
                                 $"متن اطلاعیه :\n" +
                                 $"{message.Text}", ParseMode.Html);
 

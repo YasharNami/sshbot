@@ -116,9 +116,9 @@ public class AccountReportCallbackHandler : QueryHandler
                     await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "پاسخ خود را به ربات ارسال کنید", true);
                     await _bot.SendTextMessageAsync(user.Id,
                         $"پاسخ خود را در رابطه با گزارش اشتراک\n\n" +
-                        $"🔖 <code>#{account.ClientId}</code>\n" +
+                        $"🔖 <code>#{account.UserName}</code>\n" +
                         $"روی سرور :\n" +
-                        $"🔗 <code>{server.Domain}:{account.Port}</code>\n\n" +
+                        $"🔗 <code>{server.Domain}</code>\n\n" +
                         $"ارسال نمایید :",
                         ParseMode.Html,
                         replyMarkup: MarkupKeyboards.Cancel());
@@ -150,7 +150,7 @@ public class AccountReportCallbackHandler : QueryHandler
                         $"مشکل اتصال شما توسط کارشناسان در حال برسی می باشد، بزودی نتیجه از همین طریق به شما اعلام میگردد.🤍\n" +
                         $"@connect_bash\n\n" +
                         $"شناسه اشتراک شما :\n" +
-                        $"🔗 <code>{account.ClientId}</code>\n\n" +
+                        $"🔗 <code>{account.UserName}</code>\n\n" +
                         $"موفق باشید 🌹",
                         ParseMode.Html);
 
@@ -181,7 +181,7 @@ public class AccountReportCallbackHandler : QueryHandler
                         $"لطفا مجددا بررسی کنید و در صورت پابرجا بودن مشکل در اکانت پشتیبانی درخدمت شما هستیم🤍\n" +
                         $"@connect_bash\n\n" +
                         $"شناسه اشتراک شما :\n" +
-                        $"🔗 <code>{account.ClientId}</code>\n\n" +
+                        $"🔗 <code>{account.UserName}</code>\n\n" +
                         $"موفق باشید 🌹",
                         ParseMode.Html,
                         replyMarkup: MarkupKeyboards.Cancel());

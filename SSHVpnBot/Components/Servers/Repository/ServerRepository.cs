@@ -76,12 +76,12 @@ public class ServerRepository : BaseRepository<Server>, IServerRepository
         }
     }
 
-    public async Task<bool> Capacity(int neededCapacity, string category)
+    public async Task<bool> Capacity(int neededCapacity)
     {
         using (var db = new SqlConnection(conString))
         {
             var capacities = await db.QueryFirstOrDefaultAsync<int>(
-                $"select sum(capacity) from servers where isactive=1 and categorycode='{category}' and isremoved=0 and capacity>0 and type={(int)ServerType.Main}");
+                $"select sum(capacity) from servers where isactive=1 and isremoved=0 and capacity>0 and type={(int)ServerType.Main}");
             return capacities >= neededCapacity ? true : false;
         }
     }

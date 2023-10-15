@@ -28,10 +28,11 @@ public class MainHandler
     public static readonly string _v2rayPasswords = "%gmnMrsU#nVA";
 
     public static readonly ChatId _developer = 824604384;
-    public static readonly ChatId _v2raygroup = -1001719099245;
+    public static readonly ChatId _panelGroup = -1001719099245;
     public static readonly ChatId _reportgroup = -1001937738975;
 
-    public static readonly ChatId _payments = -1001948477177;
+    public static readonly ChatId _payments = -1001746127448;
+    
     public static readonly ChatId _blockgroup = -1001963458108;
     public static readonly ChatId _colleaguegroup = -1001678498821;
 
@@ -42,9 +43,11 @@ public class MainHandler
 
 
     public static string support = $"@cb_ad";
-    public static string title = $"connectbash";
+    public static string title = $"radvip";
     public static string persianTitle = $"راد وی پی ان";
     public static string remark = @"Rad";
+
+    public static string _channel = "rad_vip_channel";
 
     private static IUnitOfWork _uw;
 
@@ -133,37 +136,7 @@ public class MainHandler
 
         return Task.CompletedTask;
     }
-
-    public static async Task NotifyCheckAccounts()
-    {
-        try
-        {
-            var accounts = _uw.AccountRepository.GetAll();
-            accounts = accounts.Where(s => s.Type == AccountType.Check && s.IsActive).ToList();
-            if (accounts?.Count() > 0)
-            {
-                var servers = _uw.ServerRepository.GetAll()
-                    .Where(s => !s.IsRemoved && s.IsActive && s.Type == ServerType.Check).ToList();
-                var msg = await _bot.SendTextMessageAsync(_v2raygroup, "Checking unconnected check accounts...");
-                var counter = 0;
-                foreach (var server in servers)
-                    try
-                    {
-                        var accountsOnServer = accounts.Where(s => s.ServerCode == server.Code);
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
-
-                await _bot.EditMessageTextAsync(_v2raygroup, msg.MessageId, $"{counter} users notified succesfully.✅");
-            }
-        }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-        }
-    }
+    
 
     public static async Task SyncAllServers()
     {

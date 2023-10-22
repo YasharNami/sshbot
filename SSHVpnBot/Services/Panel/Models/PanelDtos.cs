@@ -9,7 +9,7 @@ public class PanelClientDto
     public string Mobile { get; set; }
     public string Multiuser { get; set; }
     public DateTime StartDate { get; set; }
-    public string EndDate { get; set; }
+    public string? EndDate { get; set; }
     public string DateOneConnect { get; set; }
     public string CustomerUser { get; set; }
     public string Status { get; set; }
@@ -18,7 +18,7 @@ public class PanelClientDto
     public string Desc { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
-    public List<ClientStats> Stats { get; set; }
+    public List<ClientStats> Traffics { get; set; }
 }
 
 public class ClientStats
@@ -41,6 +41,8 @@ public class CreateNewClientDto
     public int Multiuser { get; set; }
     public int Traffic { get; set; }
     public string type_traffic { get; set; }
+    public int connection_start { get; set; }
+
     public DateTime ExpDate { get; set; }
     public string Desc { get; set; }
 }
@@ -116,8 +118,8 @@ public class OnlineClient
     public string username { get; set; }
 
     public string ip { get; set; }
-
-    public string pid { get; set; }
+public string connection { get; set; }
+public string pid { get; set; }
 }
 
 public class ExtendClientDto

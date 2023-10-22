@@ -227,4 +227,13 @@ public class AccountRepository : BaseRepository<Account>, IAccountRepository
                 .ToList();
         }
     }
+
+    public async Task<int> GetLastItemIdAsync()
+    {
+        using (var db = new SqlConnection(conString))
+        {
+            return await db.QueryFirstOrDefaultAsync<int>(
+                $"select id from accounts order by createdon desc");
+        }
+    }
 }

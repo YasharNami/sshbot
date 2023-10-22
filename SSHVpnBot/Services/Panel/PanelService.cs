@@ -10,7 +10,7 @@ namespace SSHVpnBot.Services.Panel;
 
 public class PanelService : IPanelService
 {
-    protected readonly string token = "1697321423UV8B5JZSDQO1M2L";
+    protected readonly string token = "1697652817F0EDZA7UG3H6W51";
     
     private static class Methods
     {
@@ -214,7 +214,7 @@ public class PanelService : IPanelService
     //     }
     // }
   
-    public async Task<List<OnlineClient>> GetOnlineClientsAsync(Server server)
+    public async Task<List<OnlineClient>?> GetOnlineClientsAsync(Server server)
     {
         using (var httpClient = new HttpClient())
         {
@@ -224,8 +224,8 @@ public class PanelService : IPanelService
                 var httpResponseMessage =
                     await httpClient.GetAsync($"{server.Url}/api/{token}/online");
                 var value = await httpResponseMessage.Content.ReadAsStringAsync();
-                var response = JsonConvert.DeserializeObject<ApiResult<List<OnlineClient>>>(value);
-                return response.data;
+                var response = JsonConvert.DeserializeObject<List<OnlineClient>?>(value);
+                return response;
             }
             catch (Exception e)
             {

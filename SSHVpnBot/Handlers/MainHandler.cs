@@ -4,7 +4,9 @@ using System.Drawing;
 using ConnectBashBot.Commons;
 using SSHVpnBot;
 using SSHVpnBot.Components.Accounts;
+using SSHVpnBot.Components.Accounts.Keyboards;
 using SSHVpnBot.Components.Servers;
+using SSHVpnBot.Components.Services;
 using SSHVpnBot.Components.Transactions;
 using SSHVpnBot.Repositories.Uw;
 using SSHVpnBot.Telegram.Keyboards;
@@ -22,19 +24,19 @@ public class MainHandler
 
     public static readonly string _db = "radmanvpndb";
     public static readonly bool is_develop = false;
-    public static readonly int server_capacities = 100;
+    public static readonly int server_capacities = 50;
     public static readonly string _sshPasswords = "shayancJ3VCnb4Hh3fuCMHPMgfshayan";
     public static readonly string _v2rayUsernames = "shynadmin";
     public static readonly string _v2rayPasswords = "%gmnMrsU#nVA";
 
     public static readonly ChatId _developer = 824604384;
-    public static readonly ChatId _panelGroup = -1001719099245;
+    public static readonly ChatId _panelGroup = -1001985008870;
     public static readonly ChatId _reportgroup = -1001937738975;
 
-    public static readonly ChatId _payments = -1001746127448;
-    
+    public static readonly ChatId _payments = -1001932435298;
+
     public static readonly ChatId _blockgroup = -1001963458108;
-    public static readonly ChatId _colleaguegroup = -1001678498821;
+    public static readonly ChatId _colleaguegroup = -1002113890420;
 
     public static readonly ChatId _managementgroup = -1001746127448;
     public static readonly ChatId _mainchannel = -1001905710459;
@@ -47,7 +49,7 @@ public class MainHandler
     public static string persianTitle = $"راد وی پی ان";
     public static string remark = @"Rad";
 
-    public static string _channel = "rad_vip_channel";
+    public static string _channel = "raadvip";
 
     private static IUnitOfWork _uw;
 
@@ -136,20 +138,305 @@ public class MainHandler
 
         return Task.CompletedTask;
     }
-    
+
 
     public static async Task SyncAllServers()
     {
-      
+        var servers = _uw.ServerRepository.GetAll()
+            .Where(s => !s.IsRemoved && s.Type.Equals(ServerType.Main) && s.IsActive).ToList();
+
+        foreach (var server in servers)
+        {
+            var users = await _uw.PanelService.GetAllUsersAsync(server);
+            var onlines = await _uw.PanelService.GetOnlineClientsAsync(server);
+            var actives = 0;
+            var deactives = 0;
+
+            List<string> extend_traffic = new();
+            List<string> extend_duration = new();
+            List<string> expired_traffic = new();
+
+
+            foreach (var user in users)
+            {
+                var account = await _uw.AccountRepository.GetByAccountCode(user.Username.ToUpper());
+                if (account is not null)
+                {
+                    var service = await _uw.ServiceRepository.GetServiceByCode(account.ServiceCode);
+                    if (service is not null)
+                    {
+                        var usage = user.Traffics.Sum(s => float.Parse(s.Download + s.Upload));
+                        if (usage >= service.Traffic && account.State == AccountState.Active)
+                        {
+                            account.ExtendNotifyCount++;
+                            account.State = AccountState.Expired_Traffic;
+                            server.Capacity += int.Parse(user.Multiuser);
+                            _uw.AccountRepository.Update(account);
+                            _uw.ServerRepository.Update(server);
+                            expired_traffic.Add(account.AccountCode);
+                            try
+                            {
+                                await _bot.SendTextMessageAsync(account.UserId,
+                                    $"⌛️ اکانت شما کل حجم ترافیک مجاز را مصرف کرده و منقضی شده است. لطفا از طریق لینک زیر نسبت به تمدید اشتراک اقدام نموده و یا اشتراک جدیدی تهیه فرمائید.\n\n" +
+                                    $"🔗 شناسه اشتراک :\n" +
+                                    $"<code>{account.UserName}</code>\n\n" +
+                                    $"📌 سرویس : <b>{service.GetFullTitle()}</b>\n\n" +
+                                    $"🔽 دانلود : <b>{float.Parse(user.Traffics.First().Download).ByteToGB().En2Fa()} گیگابایت</b>\n" +
+                                    $"🔼 آپلود : <b>{float.Parse(user.Traffics.First().Upload).ByteToGB().En2Fa()} گیگابایت</b>\n" +
+                                    $"♻️ مجموع ترافیک : <b>{usage.ToString().En2Fa()} گیگابایت</b>",
+                                    ParseMode.Html
+                                    , replyMarkup: AccountKeyboards.ExtendAccount(account.AccountCode));
+
+                                Thread.Sleep(1000);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                        }
+                        else
+                        {
+                            var usage_percent = (service.Traffic / 100) * 85;
+                            if (account.ExtendNotifyCount == 0 && usage >= usage_percent)
+                            {
+                                account.ExtendNotifyCount++;
+                                _uw.AccountRepository.Update(account);
+                                extend_traffic.Add(account.AccountCode);
+                                try
+                                {
+                                    await _bot.SendTextMessageAsync(account.UserId,
+                                        $".\n" +
+                                        $"🔴 کاربر گرامی،\n" +
+                                        $"شما تا ساعت {DateTime.Now.ToString("HH:mm").En2Fa()} تاريخ {DateTime.Now.ConvertToPersianCalendar().En2Fa()}، " +
+                                        $" ۸۵ درصد از حجم سرویس {service.GetFullTitle()} را مصرف کرده اید.\n" +
+                                        $"در صورت تمایل به تمدید سرویس، تا پیش از اتمام حجم نسبت به تمدید کانفیگ دریافتی از طریق دکمه زیر اقدام نمائید.\n\n" +
+                                        $"🔖 شناسه اشتراک :\n" +
+                                        $"<code>{account.UserName}</code>\n\n" +
+                                        $"{(account.Note.HasValue() ? $"📝 یادداشت اشتراک : {account.Note}\n" : "")}" +
+                                        $".",
+                                        ParseMode.Html,
+                                        replyMarkup: AccountKeyboards.ExtendAccount(
+                                            account.AccountCode)
+                                    );
+                                    Thread.Sleep(1000);
+                                }
+                                catch (Exception e)
+                                {
+                                    Console.WriteLine(e.Message);
+                                }
+                            }
+                        }
+
+                        if (account.ExtendNotifyCount == 0 && user.EndDate is not null &&
+                            (DateTime.Parse(user.EndDate) - DateTime.Now).TotalHours < 48)
+                        {
+                            account.ExtendNotifyCount++;
+                            _uw.AccountRepository.Update(account);
+                            extend_duration.Add(account.AccountCode);
+                            try
+                            {
+                                var date = DateTime.Parse(user.EndDate).ConvertToPersianCalendar().En2Fa();
+                                await _bot.SendTextMessageAsync(account.UserId,
+                                    $".\n" +
+                                    $"🔴 کاربر گرامی،\n" +
+                                    $"{service.GetFullTitle()} شما در تاریخ {date} منقضی خواهد شد و تنها ۴۸ ساعت به اتمام زمان این سرویس باقی مانده است.\n" +
+                                    $"در صورت تمایل به تمدید سرویس، تا پیش از اتمام زمان سرویس نسبت به تمدید کانفیگ دریافتی از طریق دکمه زیر اقدام نمائید.\n\n" +
+                                    $"🔖 شناسه اشتراک :\n" +
+                                    $"<code>{account.UserName}</code>",
+                                    ParseMode.Html,
+                                    replyMarkup: AccountKeyboards.ExtendAccount(
+                                        account.AccountCode)
+                                );
+                                Thread.Sleep(1000);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                        }
+
+                        if (account.EndsOn == default)
+                        {
+                            account.EndsOn = DateTime.Parse(user.EndDate);
+                            _uw.AccountRepository.Update(account);
+                        }
+                    }
+                }
+
+                if (user.Status.Equals("active"))
+                    actives += int.Parse(user.Multiuser);
+                else
+                    deactives += int.Parse(user.Multiuser);
+            }
+
+            var items = "";
+            foreach (var item in extend_traffic)
+                items += $"📮🔋 <code>{item}</code>\n";
+            foreach (var item in extend_duration)
+                items += $"📮🕠️ <code>{item}</code>\n";
+            foreach (var item in expired_traffic)
+                items += $"🔋 <code>{item}</code>\n";
+            await _bot.SendTextMessageAsync(_panelGroup,
+                $"<b>{server.Domain}</b> Sync ♻️\n\n" +
+                $"- <b>{actives} 🟢</b>\n" +
+                $"- <b>{deactives} 🔴</b>\n" +
+                $"- <b>{MainHandler.server_capacities - actives}</b> ⚪️\n\n" +
+                $"{items}",
+                ParseMode.Html);
+        }
     }
 
     public static async void SyncServers(Server server)
     {
-       
+        var users = await _uw.PanelService.GetAllUsersAsync(server);
+        var onlines = await _uw.PanelService.GetOnlineClientsAsync(server);
+        var actives = 0;
+        var deactives = 0;
+
+        List<string> extend_traffic = new();
+        List<string> extend_duration = new();
+        List<string> expired_traffic = new();
+
+
+        foreach (var user in users)
+        {
+            var account = await _uw.AccountRepository.GetByAccountCode(user.Username.ToUpper());
+            if (account is not null)
+            {
+                var service = await _uw.ServiceRepository.GetServiceByCode(account.ServiceCode);
+                if (service is not null)
+                {
+                    var usage = user.Traffics.Sum(s => float.Parse(s.Download + s.Upload));
+                    if (usage >= service.Traffic && account.State == AccountState.Active)
+                    {
+                        account.ExtendNotifyCount++;
+                        account.State = AccountState.Expired_Traffic;
+                        server.Capacity += int.Parse(user.Multiuser);
+                        _uw.AccountRepository.Update(account);
+                        _uw.ServerRepository.Update(server);
+                        expired_traffic.Add(account.AccountCode);
+                        try
+                        {
+                            await _bot.SendTextMessageAsync(account.UserId,
+                                $"⌛️ اکانت شما کل حجم ترافیک مجاز را مصرف کرده و منقضی شده است. لطفا از طریق لینک زیر نسبت به تمدید اشتراک اقدام نموده و یا اشتراک جدیدی تهیه فرمائید.\n\n" +
+                                $"🔗 شناسه اشتراک :\n" +
+                                $"<code>{account.UserName}</code>\n\n" +
+                                $"📌 سرویس : <b>{service.GetFullTitle()}</b>\n\n" +
+                                $"🔽 دانلود : <b>{float.Parse(user.Traffics.First().Download).ByteToGB().En2Fa()} گیگابایت</b>\n" +
+                                $"🔼 آپلود : <b>{float.Parse(user.Traffics.First().Upload).ByteToGB().En2Fa()} گیگابایت</b>\n" +
+                                $"♻️ مجموع ترافیک : <b>{usage.ToString().En2Fa()} گیگابایت</b>",
+                                ParseMode.Html
+                                , replyMarkup: AccountKeyboards.ExtendAccount(account.AccountCode));
+
+                            Thread.Sleep(1000);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                        }
+                    }
+                    else
+                    {
+                        var usage_percent = service.Traffic / 100 * 85;
+                        if (account.ExtendNotifyCount == 0 && usage >= usage_percent)
+                        {
+                            account.ExtendNotifyCount++;
+                            _uw.AccountRepository.Update(account);
+                            extend_traffic.Add(account.AccountCode);
+                            try
+                            {
+                                await _bot.SendTextMessageAsync(account.UserId,
+                                    $".\n" +
+                                    $"🔴 کاربر گرامی،\n" +
+                                    $"شما تا ساعت {DateTime.Now.ToString("HH:mm").En2Fa()} تاريخ {DateTime.Now.ConvertToPersianCalendar().En2Fa()}، " +
+                                    $" ۸۵ درصد از حجم سرویس {service.GetFullTitle()} را مصرف کرده اید.\n" +
+                                    $"در صورت تمایل به تمدید سرویس، تا پیش از اتمام حجم نسبت به تمدید کانفیگ دریافتی از طریق دکمه زیر اقدام نمائید.\n\n" +
+                                    $"🔖 شناسه اشتراک :\n" +
+                                    $"<code>{account.UserName}</code>\n\n" +
+                                    $"{(account.Note.HasValue() ? $"📝 یادداشت اشتراک : {account.Note}\n" : "")}" +
+                                    $".",
+                                    ParseMode.Html,
+                                    replyMarkup: AccountKeyboards.ExtendAccount(
+                                        account.AccountCode)
+                                );
+                                Thread.Sleep(1000);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message);
+                            }
+                        }
+
+                        if (account.EndsOn == account.StartsOn || account.State.Equals(AccountState.DeActive))
+                        {
+                            if (usage > 0.02)
+                            {
+                                account.EndsOn = DateTime.Now.AddDays(service.Duration);
+                                account.State = AccountState.Active;
+                                _uw.AccountRepository.Update(account);
+                                await account.ActiveAccountOnFirstTraffic(_bot, _uw);
+                            }
+                        }
+                    }
+ 
+                    if (account.ExtendNotifyCount == 0 && user.EndDate != null && (DateTime.Parse(user.EndDate) - DateTime.Now).TotalHours < 48)
+                    {
+                        account.ExtendNotifyCount++;
+                        _uw.AccountRepository.Update(account);
+                        extend_duration.Add(account.AccountCode);
+                        try
+                        {
+                            var date = DateTime.Parse(user.EndDate).ConvertToPersianCalendar().En2Fa();
+                            await _bot.SendTextMessageAsync(account.UserId,
+                                $".\n" +
+                                $"🔴 کاربر گرامی،\n" +
+                                $"{service.GetFullTitle()} شما در تاریخ {date} منقضی خواهد شد و تنها ۴۸ ساعت به اتمام زمان این سرویس باقی مانده است.\n" +
+                                $"در صورت تمایل به تمدید سرویس، تا پیش از اتمام زمان سرویس نسبت به تمدید کانفیگ دریافتی از طریق دکمه زیر اقدام نمائید.\n\n" +
+                                $"🔖 شناسه اشتراک :\n" +
+                                $"<code>{account.UserName}</code>",
+                                ParseMode.Html,
+                                replyMarkup: AccountKeyboards.ExtendAccount(
+                                    account.AccountCode)
+                            );
+                            Thread.Sleep(1000);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e.Message);
+                        }
+                    }
+
+                    if (account.EndsOn == default)
+                    {
+                        account.EndsOn = DateTime.Parse(user.EndDate);
+                        _uw.AccountRepository.Update(account);
+                    }
+                }
+            }
+
+            if (user.Status.Equals("active"))
+                actives += int.Parse(user.Multiuser);
+            else
+                deactives += int.Parse(user.Multiuser);
+        }
+
+        var items = "";
+        foreach (var item in extend_traffic)
+            items += $"📮🔋 <code>{item}</code>\n";
+        foreach (var item in extend_duration)
+            items += $"📮🕠️ <code>{item}</code>\n";
+        foreach (var item in expired_traffic)
+            items += $"🔋 <code>{item}</code>\n";
+        await _bot.SendTextMessageAsync(_panelGroup,
+            $"<b>{server.Domain}</b> Sync ♻️\n\n" +
+            $"- <b>{actives} 🟢</b>\n" +
+            $"- <b>{deactives} 🔴</b>\n" +
+            $"- <b>{server.Capacity}</b> ⚪️\n\n" +
+            $"{items}",
+            ParseMode.Html);
     }
 
 
-   
     public static async Task Today(long chatId)
     {
         var users = await _uw.SubscriberRepository.Today();
@@ -183,9 +470,9 @@ public class MainHandler
             $"🔋 مجموع ترافیک فروش : <b>{traffics.En2Fa()} گیگ</b>\n" +
             $".\n" +
             $"",
-            parseMode:ParseMode.Html);
+            ParseMode.Html);
     }
-    
+
     public static async Task Yesterday(long chatId)
     {
         var users = await _uw.SubscriberRepository.Yesterday();

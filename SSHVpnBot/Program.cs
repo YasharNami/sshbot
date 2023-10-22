@@ -24,7 +24,7 @@ try
     thread.Start();
 
 
-    var serverSyncer = new ServerSyncer(TimeSpan.FromHours(4));
+    var serverSyncer = new ServerSyncer(TimeSpan.FromMinutes(15));
     serverSyncer.Start();
 }
 catch (Exception e)

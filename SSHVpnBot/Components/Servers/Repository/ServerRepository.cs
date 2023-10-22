@@ -14,35 +14,15 @@ public class ServerRepository : BaseRepository<Server>, IServerRepository
                 new { code });
         }
     }
+    
 
-    public async Task<Server?> GetActiveOneByCategoryCode(int spapce, string category)
-    {
-        using (var db = new SqlConnection(conString))
-        {
-            return await db.QueryFirstOrDefaultAsync<Server>(
-                $"select top(1) * from servers where isactive=1  and isremoved=0 and categorycode=@category and type={(int)ServerType.Main} and capacity >= @spapce and capacity > 0 order by capacity desc",
-                new
-                    { spapce, category });
-        }
-    }
-
-    public async Task<List<Server>> GetServersByCategoryCodeAsync(string code)
-    {
-        using (var db = new SqlConnection(conString))
-        {
-            return (await db.QueryAsync<Server>($"select * from servers where categorycode=@code and isremoved=0",
-                new { code })).ToList();
-        }
-    }
 
     public async Task<List<Server>> GetAllByPaginationAsync(int page, int page_size)
     {
         using (var db = new SqlConnection(conString))
         {
             var result = (await db.QueryAsync<Server>(
-                $"SELECT  locationcode,code,Capacity,Password,Url,UserName,IsActive, value domain FROM servers CROSS APPLY STRING_SPLIT(domain, '.') " +
-                $" where IsRemoved=0 and value like 'cb%' order by cast(REPLACE(value,'cb','') as int) asc OFFSET " +
-                $"{(page - 1) * page_size} ROWS FETCH NEXT {page_size} ROWS ONLY")).ToList();
+                $"SELECT  locationcode,code,Capacity,Password,Url,UserName,IsActive,domain FROM servers")).ToList();
             return result;
         }
     }

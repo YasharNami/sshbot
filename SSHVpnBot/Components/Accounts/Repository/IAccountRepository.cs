@@ -28,4 +28,5 @@ public interface IAccountRepository : IBaseRepository<Account>
     Task<List<Account>> GetByServerCodeAsync(string serverCode);
     Task<List<Account>> GetByOrderCodeAsync(string orderTrackingCode);
     Task<List<Account>> GetByAccountNote(long userid, string query);
+    Task<int> GetLastItemIdAsync();
 }

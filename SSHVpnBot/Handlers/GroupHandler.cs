@@ -43,8 +43,8 @@ public static class GroupHandler
         {
             if (message.Text.Equals("/panel"))
             {
-                var server =  _uw.ServerRepository.GetAll();
-                var users = _uw.PanelService.GetAllUsersAsync(server.First());
+                var servers =  _uw.ServerRepository.GetAll();
+                var onlines = await _uw.PanelService.GetOnlineClientsAsync(servers.First());
                 await _bot.SendTextMessageAsync(groupId,
                     "قصد چه کاری را دارید؟",
                     replyMarkup: InlineKeyboards.AdminPanel());
@@ -250,41 +250,35 @@ public static class GroupHandler
             
             else if (message.Text.StartsWith("/usage"))
             {
-                var result = new Guid();
-                var isValid = Guid.TryParse(message.Text.Replace("/usage ", ""), out result);
-                if (isValid)
-                    Task.Run(async () =>
+                Task.Run(async () =>
+                {
+                    var account =
+                        await _uw.AccountRepository.GetByAccountCode(message.Text.Split(" ")[1]);
+                    if (account is not null)
                     {
-                        var account =
-                            await _uw.AccountRepository.GetByclientIdAsync(Guid.Parse(message.Text.Split(" ")[1]));
-                        if (account is not null)
+                        var server = await _uw.ServerRepository.GetServerByCode(account.ServerCode);
+                        if (server!.IsActive)
                         {
-                            var server = await _uw.ServerRepository.GetServerByCode(account.ServerCode);
-                            if (server!.IsActive)
+                            var users = await _uw.PanelService.GetAllUsersAsync(server);
+                            var client = users!.FirstOrDefault(s => s.Username == account.UserName);
+                            if (client is not null)
                             {
-                                var users = await _uw.PanelService.GetAllUsersAsync(server);
-                                var client = users!.FirstOrDefault(s => s.Username == account.UserName);
-                                if (client is not null)
-                                {
-                                    Service? service = await _uw.ServiceRepository.GetServiceByCode(account.ServiceCode);
-                                    Order? order = await _uw.OrderRepository.GetByTrackingCode(account.OrderCode);
-                                    await _bot.AdminAccountInfo(_uw, groupId, server, client, account, service!, order!);
-                                }
-                                else await _bot.SendTextMessageAsync(groupId, "اشتراک در پنل یافت نشد.", ParseMode.Html, cancellationToken: cancellationToken);
+                                Service? service = await _uw.ServiceRepository.GetServiceByCode(account.ServiceCode);
+                                Order? order = await _uw.OrderRepository.GetByTrackingCode(account.OrderCode);
+                                await _bot.AdminAccountInfo(_uw, groupId, server, client, account, service!, order!);
                             }
-                            else
-                            {
-                                await _bot.SendTextMessageAsync(groupId,
-                                    $"سرور <b>{server.Domain.Split(".")[0]}</b>  غیرفعال می باشد.",
-                                    ParseMode.Html,
-                                    replyToMessageId: message.MessageId);
-                            }
+                            else await _bot.SendTextMessageAsync(groupId, "اشتراک در پنل یافت نشد.", ParseMode.Html, cancellationToken: cancellationToken);
                         }
+                        else
+                        {
+                            await _bot.SendTextMessageAsync(groupId,
+                                $"سرور <b>{server.Domain.Split(".")[0]}</b>  غیرفعال می باشد.",
+                                ParseMode.Html,
+                                replyToMessageId: message.MessageId);
+                        }
+                    }
                        
-                    });
-                else
-                    await _bot.SendTextMessageAsync(groupId, "شناسه کانفیگ وارد شده معتبر نیست.",
-                        replyToMessageId: message.MessageId);
+                });
             }
             else if (message.Text.StartsWith("/updateserver"))
             {

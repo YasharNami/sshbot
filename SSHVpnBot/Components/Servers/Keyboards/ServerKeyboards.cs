@@ -76,10 +76,8 @@ public class ServerKeyboards
         {
             for (var i = 0; i < main_servers.Count; i += 2)
             {
-                var first_server_reports =
-                    (await uw.AccountReportRepository.GetAllOpenByServerCodeAsync(main_servers[counter].Code)).Count;
-                var second_server_reports =
-                    (await uw.AccountReportRepository.GetAllOpenByServerCodeAsync(main_servers[counter + 1].Code)).Count;
+                var first_server_reports = 0;
+                var second_server_reports =0;
 
                 buttonLines.Add(new List<InlineKeyboardButton>()
                 {
@@ -99,8 +97,7 @@ public class ServerKeyboards
             {
                 foreach (var main_server in main_servers)
                 {
-                    var server_reports =
-                        (await uw.AccountReportRepository.GetAllOpenByServerCodeAsync(main_server.Code)).Count();
+                    var server_reports =0;
 
                     buttonLines.Add(new List<InlineKeyboardButton>()
                     {
@@ -114,8 +111,7 @@ public class ServerKeyboards
             }
             else
             {
-                var server_reports =
-                    (await uw.AccountReportRepository.GetAllOpenByServerCodeAsync(main_servers[^1].Code)).Count();
+                var server_reports =0;
 
                 buttonLines.Add(new List<InlineKeyboardButton>()
                 {

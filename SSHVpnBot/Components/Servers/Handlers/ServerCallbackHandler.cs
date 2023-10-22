@@ -120,56 +120,55 @@ public class ServerCallbackHandler : QueryHandler
                     _uw.SubscriberRepository.ChangeStep(user.Id,
                         $"{Constants.ServerConstants}-update*{server.Code}*note*{callBackQuery.Message.MessageId}");
                     break;
-                case "reports":
-                    var reports = await _uw.AccountReportRepository.GetAllByServerCodeAsync(server.Code);
-                    if (reports.Count != 0)
-                    {
-                        await _bot.Choosed(callBackQuery);
-
-                        var result = new List<ServerReportsReportModel>();
-                        foreach (var report in reports)
-                        {
-                            var u = await _uw.SubscriberRepository.GetByChatId(report.UserId);
-                            if (u is not null)
-                            {
-                                var account =
-                                    await _uw.AccountRepository.GetByAccountCode(report.AccountCode);
-                                if (account is not null)
-                                    result.Add(new ServerReportsReportModel()
-                                    {
-                                        AccountState = account.State.ToDisplay(),
-                                        Operator = report.Operator.ToDisplay(),
-                                        AnsweredBy = report.AnsweredBy == 0
-                                            ? ""
-                                            : report.AnsweredBy.ToString(),
-                                        CreatedOn = report.CreatedOn.ConvertToPersianCalendar(),
-                                        FullName = u.FullName,
-                                        State = report.State.ToDisplay(),
-                                        LastModifiedDate = report.LastModifiedDate != null
-                                            ? report.LastModifiedDate.Value.ConvertToPersianCalendar()
-                                            : "",
-                                        Server = server.Domain,
-                                        UserId = report.UserId,
-                                        Code = report.Code,
-                                        ClientId = account.UserName,
-                                        Url = account.Url,
-                                        Description = report.Description != null
-                                            ? report.Description
-                                            : string.Empty,
-                                        Type = report.Type.ToDisplay()
-                                    });
-                            }
-                        }
-
-                        await _uw.ExcelService.ServerReportsToCsv(server, result, _bot);
-                    }
-                    else
-                    {
-                        await _bot.AnswerCallbackQueryAsync(callBackQuery.Id,
-                            "گزارشی بازی روی این سرور یافت نشد", true);
-                    }
-
-                    break;
+                // case "reports":
+                //     var reports = await _uw.AccountReportRepository.GetAllByServerCodeAsync(server.Code);
+                //     if (reports.Count != 0)
+                //     {
+                //         await _bot.Choosed(callBackQuery);
+                //
+                //         var result = new List<ServerReportsReportModel>();
+                //         foreach (var report in reports)
+                //         {
+                //             var u = await _uw.SubscriberRepository.GetByChatId(report.UserId);
+                //             if (u is not null)
+                //             {
+                //                 var account =
+                //                     await _uw.AccountRepository.GetByAccountCode(report.AccountCode);
+                //                 if (account is not null)
+                //                     result.Add(new ServerReportsReportModel()
+                //                     {
+                //                         AccountState = account.State.ToDisplay(),
+                //                         Operator = report.Operator.ToDisplay(),
+                //                         AnsweredBy = report.AnsweredBy == 0
+                //                             ? ""
+                //                             : report.AnsweredBy.ToString(),
+                //                         CreatedOn = report.CreatedOn.ConvertToPersianCalendar(),
+                //                         FullName = u.FullName,
+                //                         State = report.State.ToDisplay(),
+                //                         LastModifiedDate = report.LastModifiedDate != null
+                //                             ? report.LastModifiedDate.Value.ConvertToPersianCalendar()
+                //                             : "",
+                //                         Server = server.Domain,
+                //                         UserId = report.UserId,
+                //                         Code = report.Code,
+                //                         ClientId = account.UserName,
+                //                         Description = report.Description != null
+                //                             ? report.Description
+                //                             : string.Empty,
+                //                         Type = report.Type.ToDisplay()
+                //                     });
+                //             }
+                //         }
+                //
+                //         await _uw.ExcelService.ServerReportsToCsv(server, result, _bot);
+                //     }
+                //     else
+                //     {
+                //         await _bot.AnswerCallbackQueryAsync(callBackQuery.Id,
+                //             "گزارشی بازی روی این سرور یافت نشد", true);
+                //     }
+                //
+                //     break;
                 // case "category":
                 //     await _bot.Choosed(callBackQuery);
                 //     var categories = await _uw.ServiceCategoryRepository.GetAllCategoriesAsync();
@@ -210,9 +209,16 @@ public class ServerCallbackHandler : QueryHandler
                     await _bot.SendTextMessageAsync(user.Id, "⚙️ نوع سرور را انتخاب کنید :",
                         replyMarkup: ServerKeyboards.ServerTypes(server));
                     break;
+                case "udpgwPort":
+                    await _bot.Choosed(callBackQuery);
+                    await _bot.SendTextMessageAsync(user.Id, "📍 پورت udpgwPort سرور را ارسال کنید :",
+                        replyMarkup: MarkupKeyboards.Cancel());
+                    _uw.SubscriberRepository.ChangeStep(user.Id,
+                        $"{Constants.ServerConstants}-update*{server.Code}*udpgwPort*{callBackQuery.Message.MessageId}");
+                    break;
                 case "sshport":
                     await _bot.Choosed(callBackQuery);
-                    await _bot.SendTextMessageAsync(user.Id, "📍 پورت ریموت سرور را ارسال کنید :",
+                    await _bot.SendTextMessageAsync(user.Id, "📍 پورت SSH سرور را ارسال کنید :",
                         replyMarkup: MarkupKeyboards.Cancel());
                     _uw.SubscriberRepository.ChangeStep(user.Id,
                         $"{Constants.ServerConstants}-update*{server.Code}*sshport*{callBackQuery.Message.MessageId}");
@@ -245,13 +251,6 @@ public class ServerCallbackHandler : QueryHandler
                         replyMarkup: MarkupKeyboards.Cancel());
                     _uw.SubscriberRepository.ChangeStep(user.Id,
                         $"{Constants.ServerConstants}-update*{server.Code}*domain*{callBackQuery.Message.MessageId}");
-                    break;
-                case "sshpassword":
-                    await _bot.Choosed(callBackQuery);
-                    await _bot.SendTextMessageAsync(user.Id, "💻 رمز عبور ریموت به سرور را وارد کنید :",
-                        replyMarkup: MarkupKeyboards.Cancel());
-                    _uw.SubscriberRepository.ChangeStep(user.Id,
-                        $"{Constants.ServerConstants}-update*{server.Code}*sshpassword*{callBackQuery.Message.MessageId}");
                     break;
                 case "check":
                     if (server.Url != "تنظیم نشده" && server.Username != "تنظیم نشده" &&

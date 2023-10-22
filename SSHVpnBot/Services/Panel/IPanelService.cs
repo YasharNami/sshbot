@@ -14,5 +14,6 @@ public interface IPanelService
     Task<ApiResult?> UnSuspendClientAsync(Server server, UnSuspendClientDto client);
    Task<ApiResult?> ExtendClientAsync(Server server, ExtendClientDto client);
     //Task<bool> GetClientTrafficAsync(Server server, GetClientTrafficsDto client);
-    Task<List<OnlineClient>> GetOnlineClientsAsync(Server server);
+    Task<List<OnlineClient>?> GetOnlineClientsAsync(Server server);
+
 }

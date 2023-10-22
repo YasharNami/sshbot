@@ -68,9 +68,16 @@ public class ServerMessageHandler : MessageHandler
                             _uw.ServerRepository.Update(server);
                             _uw.SubscriberRepository.ChangeStep(user.Id, $"none");
                             break;
-                        case "sshpassword":
-                            server.SSHPassword = message.Text.Fa2En().Encrypt();
-                            await _bot.SendTextMessageAsync(user.Id, $"رمز عبور ریموت با موفقیت ویرایش شد.✅",
+                        case "udpgwPort":
+                            server.UdpgwPort = int.Parse(message.Text.Trim().Fa2En());
+                            await _bot.SendTextMessageAsync(user.Id, $"پورت UdpgwPort با موفقیت ویرایش شد.✅",
+                                replyMarkup: MarkupKeyboards.Main(subscriber.Role));
+                            _uw.ServerRepository.Update(server);
+                            _uw.SubscriberRepository.ChangeStep(user.Id, $"none");
+                            break;
+                        case "sshport":
+                            server.SSHPort = int.Parse(message.Text.Fa2En().Trim());
+                            await _bot.SendTextMessageAsync(user.Id, $"پورت SSH با موفقیت ویرایش شد.✅",
                                 replyMarkup: MarkupKeyboards.Main(subscriber.Role));
                             _uw.ServerRepository.Update(server);
                             _uw.SubscriberRepository.ChangeStep(user.Id, $"none");

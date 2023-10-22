@@ -12,9 +12,6 @@ public class Discount
     public decimal Amount { get; set; }
     public DateTime ExpiredOn { get; set; }
     public int UsageLimitation { get; set; }
-    public string ServiceCode { get; set; }
-    public long UserId { get; set; }
-    public int MaxAmountOfPercent { get; set; }
     public DateTime CreatedOn { get; set; }
     public bool IsActive { get; set; }
     public bool IsRemoved { get; set; }

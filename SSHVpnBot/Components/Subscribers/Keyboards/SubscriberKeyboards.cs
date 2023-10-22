@@ -167,11 +167,11 @@ public class SubscriberKeyboards
                     $"{Constants.SubscriberConstatns}-settings*updateremark")
             });
 
-        buttonLines.Add(new List<InlineKeyboardButton>()
-        {
-            InlineKeyboardButton.WithCallbackData(
-                $"🌀 جابجایی حساب کابری", $"{Constants.SubscriberConstatns}-settings*moveaccount")
-        });
+        // buttonLines.Add(new List<InlineKeyboardButton>()
+        // {
+        //     InlineKeyboardButton.WithCallbackData(
+        //         $"🌀 جابجایی حساب کابری", $"{Constants.SubscriberConstatns}-settings*moveaccount")
+        // });
         return new InlineKeyboardMarkup(buttonLines);
     }
 

@@ -7,6 +7,7 @@ using SSHVpnBot.Components.Services;
 using SSHVpnBot.Components.Subscribers;
 using SSHVpnBot.Components.Transactions;
 using SSHVpnBot.Repositories.Uw;
+using SSHVpnBot.Services.Panel.Models;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
@@ -46,11 +47,106 @@ public static class OrderUtillities
     {
         var service = await _uw.ServiceRepository.GetServiceByCode(order.ServiceCode);
 
-        await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "پرداخت با موفقیت تایید شد.✅", true);
 
         var account = await _uw.AccountRepository.GetByAccountCode(order.AccountCode);
         var server = await _uw.ServerRepository.GetServerByCode(account.ServerCode);
-        
+        if (server is not null)
+            if (server.IsActive)
+            {
+                var users = await _uw.PanelService.GetAllUsersAsync(server);
+                var client = users.FirstOrDefault(s => s.Username.Equals(order.AccountCode.ToLower()));
+                if (client is not null)
+                {
+                    await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "پرداخت با موفقیت تایید شد.✅", true);
+
+
+                    var extend = await _uw.PanelService.ExtendClientAsync(server, new ExtendClientDto()
+                    {
+                        re_date = DateTime.Now.AddDays(service.Duration).ToString("yyyy-MM-dd"),
+                        day_date = service.Duration.ToString(),
+                        re_traffic = service.Traffic.ToString(),
+                        username = client.Username
+                    });
+                    if (extend is not null)
+                    {
+                        if (extend!.message!.Equals("User Renewal"))
+                        {
+                            order.State = OrderState.Done;
+
+                            if (!account.State.Equals(AccountState.Expired))
+                                account.EndsOn = DateTime.Now.AddDays(service.Duration);
+                            else account.EndsOn = DateTime.Now.AddDays(service.Duration);
+
+                            account.IsActive = true;
+                            account.Traffic += service.Traffic;
+                            account.State = AccountState.Active;
+
+                            _uw.AccountRepository.Update(account);
+                            _uw.OrderRepository.Update(order);
+
+                            _bot.SuccessfulExtend(server, order.UserId, account);
+
+                            if (order.PaymentType != PaymentType.Wallet)
+                                await _bot.EditMessageTextAsync(MainHandler._payments,
+                                    callBackQuery.Message.MessageId,
+                                    callBackQuery.Message.Text.Replace(
+                                        "♻️ آیا اطلاعات فوق را جهت تمدید سرویس تایید میکنید؟",
+                                        "" +
+                                        $"توسط {user.FirstName + " " + user.LastName} تایید شد ✅️"));
+
+                            await _bot.SendTextMessageAsync(MainHandler._panelGroup,
+                                $".\n" +
+                                $"♻️ تمدید جدید اشتراک :\n\n" +
+                                $"🌐 <b>{server.Domain}</b>\n" +
+                                $"🧩 <b>{service.GetFullTitle()}</b>\n" +
+                                $"🔗 <code>{account.AccountCode}</code>\n" +
+                                $"🕧 {account.EndsOn.ConvertToPersianCalendar()}",
+                                ParseMode.Html);
+
+                            var subscriber = await _uw.SubscriberRepository.GetByChatId(order.UserId);
+                            if (!subscriber.Role.Equals(Role.Colleague) && subscriber.Referral.HasValue())
+                            {
+                                long user_id = 0;
+                                if (long.TryParse(subscriber.Referral, out user_id))
+                                {
+                                    var referral = await _uw.SubscriberRepository.GetByChatId(user_id);
+                                    if (referral is not null)
+                                        if (!referral.Role.Equals(Role.Colleague) && referral.IsActive)
+                                        {
+                                            var code = Transaction.GenerateNewDiscountNumber();
+                                            var transaction = new Transaction()
+                                            {
+                                                Amount = order.TotalAmount / 100 * 10,
+                                                CreatedOn = DateTime.Now,
+                                                TransactionCode = code,
+                                                UserId = referral.UserId,
+                                                Type = TransactionType.OrderReward
+                                            };
+                                            _uw.TransactionRepository.Add(transaction);
+                                            await _bot.SendTextMessageAsync(referral.UserId,
+                                                $".\n" +
+                                                $"👥 #پاداش_زیرمجموعه به شما تعلق گرفت.\n\n" +
+                                                $"🔖 شناسه پاداش : <code>#{transaction.TransactionCode}</code>\n" +
+                                                $"👤 شناسه زیرمجموعه : <code>#U{order.UserId}</code>\n" +
+                                                $"💰 به مبلغ <b>{transaction.Amount.ToIranCurrency().En2Fa()} تومان</b>\n\n" +
+                                                $"<b>{transaction.CreatedOn.ConvertToPersianCalendar().En2Fa()} ساعت {transaction.CreatedOn.ToString("HH:mm").En2Fa()}</b>\n" +
+                                                $".",
+                                                ParseMode.Html);
+                                        }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            await _uw.LoggerService.LogException(_bot, extend.message);
+                        }
+                    }
+                }
+                else
+                {
+                    await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "اشتراک مورد نظر یافت نشد.", true);
+                }
+            }
     }
 
     public static async Task ApproveNewOrder(this ITelegramBotClient _bot, IUnitOfWork _uw, Order order, User user,
@@ -61,9 +157,12 @@ public static class OrderUtillities
         {
             order.State = OrderState.Done;
             var cli_counts = order.Count * service.UserLimit;
-          
+
             var server = await _uw.ServerRepository.GetActiveOne(cli_counts);
-            await _bot.CreateSingleClientOnServer(_uw, server, service, order, user, chatId,callBackQuery);
+            if (order.Count == 1)
+                await _bot.CreateSingleClientOnServer(_uw, server, service, order, user, chatId, callBackQuery);
+            else
+                await _bot.CreateManyClientOnServer(_uw, server, service, order, user, chatId, callBackQuery);
 
             if (order.PaymentType == PaymentType.Wallet)
             {
@@ -88,64 +187,32 @@ public static class OrderUtillities
                     $"<b>{transaction.CreatedOn.ConvertToPersianCalendar().En2Fa()} ساعت {transaction.CreatedOn.ToString("HH:mm").En2Fa()}</b>\n" +
                     $"",
                     ParseMode.Html);
-                   if (!order.DiscountNumber.HasValue())
-                                {
-                                    var cashbackcode = Transaction.GenerateNewDiscountNumber();
-                                    var trans = new Transaction()
-                                    {
-                                        Amount = (order.TotalAmount / 100 ) * 5,
-                                        CreatedOn = DateTime.Now,
-                                        UserId = order.UserId,
-                                        TransactionCode = cashbackcode,
-                                        IsRemoved = false,
-                                        Type = TransactionType.CashBack
-                                    };
-                                    _uw.TransactionRepository.Add(trans);
-                                }
-                   var balance = await _uw.TransactionRepository.GetMineBalanceAsync(order.UserId);
-                   Discount discount = null;
-                   if (order.DiscountNumber.HasValue())
-                   {
-                       discount = await _uw.DiscountRepository.GetByDiscountNumberAsync(order.DiscountNumber);
-                   }
-                   await _bot.SendTextMessageAsync(MainHandler._payments,
-                       $".\n" +
-                       $"<b>اطلاعات سفارش ثبت شده 🟢️</b>\n\n" +
-                       $"🔖 <b>#{order.TrackingCode}</b>\n" +
-                       $"🔗 <b>{order.Count.En2Fa()} اشتراک {service.GetFullTitle()}</b>\n" +
-                       $"💳 <b>{order.TotalAmount.ToIranCurrency().En2Fa()} تومان</b>\n" +
-                       $"📅 <b>{order.CreatedOn.ConvertToPersianCalendar().En2Fa()} ساعت {order.CreatedOn.ToString("HH:mm").En2Fa()}</b>\n" +
-                       $"👤 <code>#U{chatId}</code> | <a href='tg://user?id={chatId}'>{user.FirstName} {user.LastName}</a>\n" +
-                       $"{(discount is null ? "" : $"🔖 کد تخفیف : <b>{discount.Code}</b>\n")}\n" +
-                       $"💰 موجودی پس از سفارش : <b>{balance.Value.ToIranCurrency().En2Fa()} تومان</b>\n\n" +
-                       $"تایید شده توسط سیستم ✅️",
-                       ParseMode.Html);
             }
 
-            if (order.DiscountNumber.HasValue())
-            {
-                var discount = await _uw.DiscountRepository.GetByDiscountNumberAsync(order.DiscountNumber);
-                if (discount is not null)
-                {
-                    var off = discount.Type == DiscountType.Amount
-                        ? discount.Amount
-                        : order.TotalAmount / 100 * discount.Amount;
+            // if (order.DiscountNumber.HasValue())
+            // {
+            //     var discount = await _uw.DiscountRepository.GetByDiscountNumberAsync(order.DiscountNumber);
+            //     if (discount is not null)
+            //     {
+            //         var off = discount.Type == DiscountType.Amount
+            //             ? discount.Amount
+            //             : order.TotalAmount / 100 * discount.Amount;
+            //
+            //         var code = Transaction.GenerateNewDiscountNumber();
+            //         var transaction = new Transaction()
+            //         {
+            //             TransactionCode = code,
+            //             UserId = order.UserId,
+            //             IsRemoved = false,
+            //             Type = TransactionType.,
+            //             CreatedOn = DateTime.Now,
+            //             Amount = off
+            //         };
+            //         _uw.TransactionRepository.Add(transaction);
+            //     }
+            // }
 
-                    var code = Transaction.GenerateNewDiscountNumber();
-                    var transaction = new Transaction()
-                    {
-                        TransactionCode = code,
-                        UserId = order.UserId,
-                        IsRemoved = false,
-                        Type = TransactionType.CashBack,
-                        CreatedOn = DateTime.Now,
-                        Amount = off
-                    };
-                    _uw.TransactionRepository.Add(transaction);
-                }
-            }
-           
-            var subscriber =  await _uw.SubscriberRepository.GetByChatId(order.UserId);
+            var subscriber = await _uw.SubscriberRepository.GetByChatId(order.UserId);
             if (!subscriber.Role.Equals(Role.Colleague) && subscriber.Referral.HasValue())
             {
                 var referral = await _uw.SubscriberRepository.GetByChatId(long.Parse(subscriber.Referral));
@@ -155,7 +222,7 @@ public static class OrderUtillities
                         var code = Transaction.GenerateNewDiscountNumber();
                         var transaction = new Transaction()
                         {
-                            Amount = (order.TotalAmount / 100) * 10,
+                            Amount = order.TotalAmount / 100 * 10,
                             CreatedOn = DateTime.Now,
                             TransactionCode = code,
                             UserId = referral.UserId,
@@ -174,7 +241,6 @@ public static class OrderUtillities
                     }
             }
         }
-
     }
 
 

@@ -82,22 +82,30 @@ public class AccountMessageHandler : MessageHandler
                 }
                 else if (step.Equals("senduid"))
                 {
-                    var result = new Guid();
-                    var isValid = Guid.TryParse(message.Text, out result);
-                    if (isValid)
-                    {
-                        Task.Run(async () =>
+                      Task.Run(async () =>
                         {
-                            var account = await _uw.AccountRepository.GetMineByclientIdAsync(result, user.Id);
+                            var account = await _uw.AccountRepository.GetByAccountCode(message.Text.Fa2En().Trim());
                             var msg = await _bot.SendTextMessageAsync(user.Id, "در حال دریافت اطلاعات..⌛️",
                                 replyToMessageId: message.MessageId,
                                 replyMarkup: MarkupKeyboards.Main(subscriber.Role));
                             if (account is not null)
                             {
                                 var server = await _uw.ServerRepository.GetServerByCode(account.ServerCode);
-                                if (server.IsActive)
+                                if (server!.IsActive)
                                 {
-                                  
+                                    var users = await _uw.PanelService.GetAllUsersAsync(server);
+                                    var client = users.FirstOrDefault(s => s.Username.Equals(account.AccountCode.ToLower()));
+                                    if (client is not null)
+                                    {
+                                        var service = await _uw.ServiceRepository.GetServiceByCode(account.ServiceCode);
+                                        if (service is not null)
+                                        {
+                                            await _bot.SellerAccountInfo(_uw, user.Id, server, account,
+                                                client.Traffics[0]);
+                                        }
+                                        else await _bot.SendTextMessageAsync(user.Id,"سرویس اشتراک یافت نشد.",replyToMessageId:message.MessageId);
+                                    }
+                                    else await _bot.SendTextMessageAsync(user.Id,"اشتراک یافت نشد.",replyToMessageId:message.MessageId);
                                 }
                                 else
                                 {
@@ -110,42 +118,14 @@ public class AccountMessageHandler : MessageHandler
                             }
                             else
                             {
-                                var found = false;
-                                var servers = _uw.ServerRepository.GetAll().Where(s => !s.IsRemoved && s.IsActive)
-                                    .OrderByDescending(s => s.CreatedOn).ToList();
-                                foreach (var server in servers)
-                                {
-                                    
-                                }
-
-                                LoopEnd:
-                                if (!found)
-                                {
-                                    await _bot.DeleteMessageAsync(user.Id, msg.MessageId);
-                                    await _bot.SendTextMessageAsync(user.Id,
-                                        $".\n" +
-                                        $"شناسه کانفیگ مورد نظر یافت نشد.\n" +
-                                        $"لطفا اطلاعات ورودی را بررسی نمائید.🧐",
-                                        replyToMessageId: message.MessageId,
-                                        replyMarkup: MarkupKeyboards.Cancel());
-                                }
+                                await _bot.SendTextMessageAsync(user.Id,
+                                    $".\n" +
+                                    $"شناسه کانفیگ مورد نظر یافت نشد.\n" +
+                                    $"لطفا اطلاعات ورودی را بررسی نمائید.🧐",
+                                    replyToMessageId: message.MessageId,
+                                    replyMarkup: MarkupKeyboards.Cancel());
                             }
                         });
-                    }
-                    else if (message.Text.StartsWith("vless://"))
-                    {
-                        var account = await _uw.AccountRepository.GetMineByVlessUrlAsync(message.Text, user.Id);
-                        if (account is not null)
-                        {
-                            var server = await _uw.ServerRepository.GetServerByCode(account.ServerCode);
-                           
-                        }
-                    }
-                    else
-                    {
-                        await _bot.SendTextMessageAsync(user.Id, $"شناسه کاربری وارد شده معتبر نیست.✖️"
-                            , replyToMessageId: message.MessageId);
-                    }
                 }
 
                 break;

@@ -20,7 +20,6 @@ public class Account
     public DateTime StartsOn { get; set; }
     public DateTime EndsOn { get; set; }
     public AccountState State { get; set; }
-    public string Url { get; set; }
     public bool Sold { get; set; }
     public string ServerCode { get; set; }
     public int LimitIp { get; set; }
@@ -36,20 +35,23 @@ public class Account
     public string Note { get; set; }
     public int ExtendNotifyCount { get; set; }
 
-    public static string GenerateNewAccountCode()
+    public static string GenerateNewAccountCode(int count)
     {
-        return "AC" +
-               DateTime.UtcNow.Ticks.ToString().Substring(6, 12);
+        return "AC00" + count + 1 ;
     }
     
     public static string GenerateNewClientEmail(Order order)
     {
-        return $"RAD-{order.TrackingCode}-{DateTime.UtcNow.Ticks.ToString().Substring(12, 6)}@radvpn.com" ;
+        return $"RAAD-{order.TrackingCode}-{DateTime.UtcNow.Ticks.ToString().Substring(12, 6)}@radvpn.com" ;
+    }
+    public static string GenerateNewCheckClientEmail()
+    {
+        return $"CheckRaad-{DateTime.UtcNow.Ticks.ToString().Substring(12, 6)}@radvpn.com" ;
     }
     
     public static string GenerateNewAccountPassword()
     {
-        return DateTime.UtcNow.Ticks.ToString().Substring(12, 6);
+        return DateTime.UtcNow.Ticks.ToString().Substring(14, 4);
     }
 }
 

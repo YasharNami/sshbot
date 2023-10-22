@@ -7,6 +7,7 @@ using SSHVpnBot.Components.Servers;
 using SSHVpnBot.Components.Services;
 using SSHVpnBot.Components.Subscribers;
 using SSHVpnBot.Repositories.Uw;
+using SSHVpnBot.Services.Panel.Models;
 using SSHVpnBot.Telegram;
 using SSHVpnBot.Telegram.Keyboards;
 using Telegram.Bot;
@@ -34,7 +35,22 @@ public class AccountCallbackHandler : QueryHandler
                 var server = await _uw.ServerRepository.GetServerByCode(account.ServerCode);
                 if (server.IsActive)
                 {
-
+                    var clients = await _uw.PanelService.GetAllUsersAsync(server);
+                    var client = clients!.FirstOrDefault(s => s.Email.Equals(account.Email));
+                    if (client is not null)
+                    {
+                        await _bot.Choosed(callBackQuery);
+                        var service = await _uw.ServiceRepository.GetServiceByCode(account.ServiceCode);
+                        if (subscriber.Role.Equals(Role.Colleague))
+                            await _bot.SellerAccountInfo(_uw, user.Id, server, account, client.Traffics[0]);
+                        else
+                            await _bot.SubscriberAccountInfo(user.Id, server, account, service, client.Traffics[0]);
+                    }
+                    else
+                    {
+                        await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "اشتراک مورد نظر یافت نشد.",
+                            true);
+                    }
                 }
                 else
                 {
@@ -46,13 +62,14 @@ public class AccountCallbackHandler : QueryHandler
         }
         else if (data.StartsWith("extend*"))
         {
-            await _bot.Choosed(callBackQuery);
             var account = await _uw.AccountRepository.GetByAccountCode(data.Replace("extend*", ""));
             if (account.State != AccountState.DeActive)
             {
                 var service = await _uw.ServiceRepository.GetServiceByCode(account.ServiceCode);
                 if (service is not null && !service.IsRemoved)
                 {
+                    await _bot.Choosed(callBackQuery);
+
                     var payments = _uw.PaymentMethodRepository.GetAll().Where(s => s.IsActive).ToList();
 
                     var order = new Order()
@@ -160,7 +177,6 @@ public class AccountCallbackHandler : QueryHandler
                 Task.Run(async () =>
                 {
                     var server = await _uw.ServerRepository.GetServerByCode(account.ServerCode);
-
                 });
             else
                 await _bot.AnswerCallbackQueryAsync(callBackQuery.Id,
@@ -216,84 +232,159 @@ public class AccountCallbackHandler : QueryHandler
             var section = data.Split("*")[1];
             var account_code = data.Split("*")[2];
             var serverId = int.Parse(data.Split("*")[3]);
-            var port = int.Parse(data.Split("*")[4]);
 
             var server = _uw.ServerRepository.GetById(serverId);
 
             var account = await _uw.AccountRepository.GetByAccountCode(account_code);
-
+            var service = await _uw.ServiceRepository.GetServiceByCode(account.ServiceCode);
             if (account is not null)
-            {
+                switch (section)
+                {
+                    case "reset":
 
-            }
+                        break;
+                    case "rm":
+                        await _bot.SendTextMessageAsync(groupId,
+                            $"آیا از حذف کانفیگ به شرح فوق اطمینان دارید؟\n\n",
+                            ParseMode.Html,
+                            replyToMessageId: callBackQuery.Message!.MessageId,
+                            replyMarkup:
+                            AccountKeyboards.RemoveConfigConfirmation(server, account.AccountCode));
+                        break;
+                    case "extend":
+                        var extend = await _uw.PanelService.ExtendClientAsync(server, new ExtendClientDto()
+                        {
+                            re_date = DateTime.Now.AddDays(service!.Duration).ToString("yyyy-MM-dd"),
+                            day_date = service.Duration.ToString(),
+                            re_traffic = service.Traffic.ToString(),
+                            username = account.UserName
+                        });
+                        if (extend is not null && extend!.message!.Equals("User Renewal"))
+                        {
+                            await _bot.DeleteMessageAsync(groupId, callBackQuery.Message.MessageId);
+                            await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "کانفیگ با موفقیت تمدید شد.", true);
+                            account.EndsOn = DateTime.Now.AddDays(service.Duration);
+                            _uw.AccountRepository.Update(account);
+                            var users = await _uw.PanelService.GetAllUsersAsync(server);
+                            var client = users!.FirstOrDefault(s => s.Username == account.UserName);
+                            if (client is not null)
+                            {
+                                var order = await _uw.OrderRepository.GetByTrackingCode(account.OrderCode);
+                                await _bot.AdminAccountInfo(_uw, groupId, server, client, account, service!, order!);
+                            }
+                            else
+                            {
+                                await _bot.SendTextMessageAsync(groupId, "اشتراک در پنل یافت نشد.", ParseMode.Html);
+                            }
+                        }
+                        else
+                        {
+                            await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "خطایی حین تمدید کانفیگ رخ داد.",
+                                true);
+                        }
+
+                        break;
+                    case "block":
+                        var block = await _uw.PanelService.SuspendClientAsync(server, new SuspendClientDto()
+                        {
+                            Username = account.UserName
+                        });
+
+                        if (block is not null && block.message.Equals("User Deactivated"))
+                        {
+                            await _bot.DeleteMessageAsync(groupId, callBackQuery.Message.MessageId);
+                            await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "کانفیگ با موفقیت مسدود شد.", true);
+                            account.State = AccountState.Blocked;
+                            _uw.AccountRepository.Update(account);
+                            var users = await _uw.PanelService.GetAllUsersAsync(server);
+                            var client = users!.FirstOrDefault(s => s.Username == account.UserName);
+                            if (client is not null)
+                            {
+                                var order = await _uw.OrderRepository.GetByTrackingCode(account.OrderCode);
+                                await _bot.AdminAccountInfo(_uw, groupId, server, client, account, service!, order!);
+                            }
+                            else
+                            {
+                                await _bot.SendTextMessageAsync(groupId, "اشتراک در پنل یافت نشد.", ParseMode.Html);
+                            }
+                        }
+                        else
+                        {
+                            await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "خطایی حین مسدودسازی کانفیگ رخ داد.",
+                                true);
+                        }
+
+                        break;
+                    case "unblock":
+                        var unblock = await _uw.PanelService.UnSuspendClientAsync(server, new UnSuspendClientDto()
+                        {
+                            Username = account.UserName
+                        });
+
+                        if (unblock is not null && unblock.message.Equals("User Activated"))
+                        {
+                            await _bot.DeleteMessageAsync(groupId, callBackQuery.Message.MessageId);
+                            await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "کانفیگ با آنبن شد.", true);
+                            account.State = AccountState.Active;
+                            _uw.AccountRepository.Update(account);
+                            var users = await _uw.PanelService.GetAllUsersAsync(server);
+                            var client = users!.FirstOrDefault(s => s.Username == account.UserName);
+                            if (client is not null)
+                            {
+                                var order = await _uw.OrderRepository.GetByTrackingCode(account.OrderCode);
+                                await _bot.AdminAccountInfo(_uw, groupId, server, client, account, service!, order!);
+                            }
+                            else
+                            {
+                                await _bot.SendTextMessageAsync(groupId, "اشتراک در پنل یافت نشد.", ParseMode.Html);
+                            }
+                        }
+                        else
+                        {
+                            await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "خطایی حین آنبن سازی کانفیگ رخ داد.",
+                                true);
+                        }
+
+                        break;
+                }
             else
-            {
                 await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "اشترام مورد نظر یافت نشد.", true);
-            }
         }
-        else if (data.StartsWith("extconfg*"))
+        else if (data.StartsWith("rmconf*"))
         {
-            var answer = data.Split("*")[1];
-            var code = data.Split("*")[2];
-            var port = int.Parse(data.Split("*")[4]);
-
-            var account = await _uw.AccountRepository.GetByAccountCode(code);
+            var account = await _uw.AccountRepository.GetByAccountCode(data.Split("*")[1]);
+            var server = _uw.ServerRepository.GetById(int.Parse(data.Split("*")[2]));
             if (account is not null)
             {
-                if (answer.Equals("approve"))
+                if (server.IsActive)
                 {
-                    var server = _uw.ServerRepository.GetById(int.Parse(data.Split("*")[3]));
+                    var remove = await _uw.PanelService.DeleteClientAsync(server, new DeleteClientDto()
+                    {
+                        Username = account.UserName
+                    });
 
-                }
-                else
-                {
-                    await _bot.DeleteMessageAsync(groupId, callBackQuery.Message.MessageId);
-                }
-            }
-        }
-        else if (data.StartsWith("rmcnf*"))
-        {
-            var ansewr = data.Split("*")[1];
-            var clientId = data.Split("*")[2];
-            var serverId = int.Parse(data.Split("*")[3]);
-            var port = int.Parse(data.Split("*")[4]);
-
-            if (ansewr.Equals("approve"))
-            {
-                var server = _uw.ServerRepository.GetById(serverId);
-            }
-            else
-            {
-                await _bot.DeleteMessageAsync(groupId, callBackQuery.Message.MessageId);
-            }
-        }
-        else if (data.StartsWith("block*"))
-        {
-            var ansewr = data.Split("*")[1];
-            var clientId = data.Split("*")[2];
-            var serverId = int.Parse(data.Split("*")[3]);
-            var port = int.Parse(data.Split("*")[4]);
-
-            if (ansewr.Equals("approve"))
-            {
-                var account = await _uw.AccountRepository.GetByclientIdAsync(Guid.Parse(clientId));
-
-                if (account.State.Equals(AccountState.Blocked) ||
-                    account.State.Equals(AccountState.Blocked_Ip))
-                {
-
-                    var server = _uw.ServerRepository.GetById(serverId);
-
-                }
-                else
-                {
-                    await _bot.AnswerCallbackQueryAsync(callBackQuery.Id,
-                        $"وضعیت اشتراک مورد نظر {account.State.ToDisplay()} می باشد.", true);
+                    if (remove is not null)
+                    {
+                        await _bot.DeleteMessageAsync(groupId, callBackQuery.Message!.MessageId);
+                        await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "کانفیگ با موفقیت حذف شد.", true);
+                        account.IsRemoved = true;
+                        _uw.AccountRepository.Update(account);
+                        await _bot.SendTextMessageAsync(MainHandler._panelGroup,
+                            $"✖️️ Removed on {server.Domain}\n\n" +
+                            $"<code>{account.AccountCode}</code>", ParseMode.Html);
+                        await _bot.DeleteMessageAsync(groupId, callBackQuery.Message.ReplyToMessage.MessageId);
+                        ;
+                    }
+                    else
+                    {
+                        await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "خطایی حین مسدودسازی کانفیگ رخ داد.",
+                            true);
+                    }
                 }
             }
             else
             {
-                await _bot.DeleteMessageAsync(groupId, callBackQuery.Message.MessageId);
+                await _bot.AnswerCallbackQueryAsync(callBackQuery.Id, "اشتراک مورد نظر یافت نشد.", true);
             }
         }
         else if (data.StartsWith("unblock*"))
@@ -311,7 +402,6 @@ public class AccountCallbackHandler : QueryHandler
                     account.State.Equals(AccountState.Blocked_Ip))
                 {
                     var server = _uw.ServerRepository.GetById(serverId);
-
                 }
                 else
                 {
@@ -326,10 +416,12 @@ public class AccountCallbackHandler : QueryHandler
         }
         else if (data.Equals("searchbynote"))
         {
-            _uw.SubscriberRepository.ChangeStep(user.Id, "sendquery");
+            _uw.SubscriberRepository.ChangeStep(user.Id, $"{Constants.AccountConstants}-sendquery");
             var msg = await _bot.SendTextMessageAsync(user.Id,
                 "🔍", replyMarkup: MarkupKeyboards.Cancel());
             await _bot.DeleteMessageAsync(user.Id, msg.MessageId);
+            await _bot.DeleteMessageAsync(user.Id, callBackQuery.Message.MessageId);
+
             await _bot.SendTextMessageAsync(user.Id,
                 $".\n" +
                 $"🔍 یادداشت کانفیگ مشتری یا بخشی از آن را را جهت بررسی وارد نمایید :\n\n" +

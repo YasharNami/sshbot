@@ -55,21 +55,21 @@ public class DiscountKeyboards
                 InlineKeyboardButton.WithCallbackData("مقدار تخفیف 💲",
                     $"{Constants.DiscountConstants}-update*{discount.Id}*amount")
             },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("تعیین سقف میزان درصد 📍",
-                    $"{Constants.DiscountConstants}-update*{discount.Id}*maxpercentamount")
-            },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("اختصاص به سرویس خاص 🧩",
-                    $"{Constants.DiscountConstants}-update*{discount.Id}*service")
-            },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("اختصاص به کاربر خاص 👤",
-                    $"{Constants.DiscountConstants}-update*{discount.Id}*service")
-            },
+            // new()
+            // {
+            //     InlineKeyboardButton.WithCallbackData("تعیین سقف میزان درصد 📍",
+            //         $"{Constants.DiscountConstants}-update*{discount.Id}*maxpercentamount")
+            // },
+            // new()
+            // {
+            //     InlineKeyboardButton.WithCallbackData("اختصاص به سرویس خاص 🧩",
+            //         $"{Constants.DiscountConstants}-update*{discount.Id}*service")
+            // },
+            // new()
+            // {
+            //     InlineKeyboardButton.WithCallbackData("اختصاص به کاربر خاص 👤",
+            //         $"{Constants.DiscountConstants}-update*{discount.Id}*service")
+            // },
             new()
             {
                 InlineKeyboardButton.WithCallbackData("تعداد استفاده 👥️",

@@ -201,7 +201,7 @@ public class DiscountCallbackHandler : QueryHandler
                 if (service is not null)
                 {
                     await _bot.Choosed(callBackQuery);
-                    discount.ServiceCode = service.Code;
+                    // discount.ServiceCode = service.Code;
                     _uw.DiscountRepository.Update(discount);
                     await _bot.DeleteMessageAsync(user.Id, int.Parse(data.Split("*")[3]));
                     await _bot.DeleteMessageAsync(user.Id, callBackQuery.Message.MessageId);

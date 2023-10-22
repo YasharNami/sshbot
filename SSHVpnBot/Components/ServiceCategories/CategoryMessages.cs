@@ -11,7 +11,6 @@ public static class CategoryMessages
     public static async Task UpdateCategoryMessage(this ITelegramBotClient bot, IUnitOfWork uw, long chatId,
         ServiceCategory category)
     {
-        var servers = await uw.ServerRepository.GetServersByCategoryCodeAsync(category.Code);
         var services = await uw.ServiceRepository.GetServicesByCategoryCodeAsync(category.Code);
         
         await bot.SendTextMessageAsync(chatId,
@@ -23,7 +22,6 @@ public static class CategoryMessages
             $"{category.Description}\n" +
             $"📍 وضعیت : <b>{(category.IsActive ? "فعال 🟢" : "غیرفعال 🔴")}</b>\n\n" +
             $"🧩 تعداد سرویس های این دسته بندی : <b>{services.Count.En2Fa()}</b>\n" +
-            $"🌐 تعداد سرور های این دسته بندی : <b>{servers.Count.En2Fa()}</b>\n\n" +
             $"قصد ویرایش کدام آیتم را دارید؟",
             ParseMode.Html,
             replyMarkup: ServiceCategoryKeyboards.SingleCategoryManagement(category));

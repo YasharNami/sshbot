@@ -95,13 +95,13 @@ public class OrderMessageHandler : MessageHandler
                                 await _uw.DiscountRepository.GetByCodeAsync(message.Text.Trim().Fa2En().ToLower());
                             if (discount is not null)
                             {
-                                if (discount.UserId is not 0)
-                                    if (!discount.UserId.Equals(order.UserId))
-                                    {
-                                        await _bot.SendTextMessageAsync(user.Id, "کد تخفیف وارد شده نامعتبر است.✖️",
-                                            replyToMessageId: message.MessageId);
-                                        return;
-                                    }
+                                // if (discount.UserId is not 0)
+                                //     if (!discount.UserId.Equals(order.UserId))
+                                //     {
+                                //         await _bot.SendTextMessageAsync(user.Id, "کد تخفیف وارد شده نامعتبر است.✖️",
+                                //             replyToMessageId: message.MessageId);
+                                //         return;
+                                //     }
 
                                 var useBefore =
                                     await _uw.OrderRepository.UseOffCodeBefore(user.Id, discount.DiscountNumber);
@@ -118,21 +118,21 @@ public class OrderMessageHandler : MessageHandler
                                     }
                                     else
                                     {
-                                        if (discount.ServiceCode.HasValue() &&
-                                            !order.ServiceCode.Equals(discount.ServiceCode))
-                                        {
-                                            await _bot.SendTextMessageAsync(user.Id,
-                                                $"کد تخفیف وارد شده به سرویس سفارش داده شده تعلق ندارد.",
-                                                replyToMessageId: message.MessageId);
-                                            return;
-                                        }
+                                        // if (discount.ServiceCode.HasValue() &&
+                                        //     !order.ServiceCode.Equals(discount.ServiceCode))
+                                        // {
+                                        //     await _bot.SendTextMessageAsync(user.Id,
+                                        //         $"کد تخفیف وارد شده به سرویس سفارش داده شده تعلق ندارد.",
+                                        //         replyToMessageId: message.MessageId);
+                                        //     return;
+                                        // }
 
                                         var off = discount.Type == DiscountType.Amount
                                             ? discount.Amount
                                             : order.TotalAmount / 100 * discount.Amount;
-                                        if (discount.MaxAmountOfPercent is not 0)
-                                            if (off >= discount.MaxAmountOfPercent)
-                                                off = discount.MaxAmountOfPercent;
+                                        // if (discount.MaxAmountOfPercent is not 0)
+                                        //     if (off >= discount.MaxAmountOfPercent)
+                                        //         off = discount.MaxAmountOfPercent;
                                         order.TotalAmount = order.TotalAmount - off + new Random().Next(100, 999);
                                         order.DiscountNumber = discount.DiscountNumber;
                                         _uw.OrderRepository.Update(order);

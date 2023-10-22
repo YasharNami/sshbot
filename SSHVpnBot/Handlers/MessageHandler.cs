@@ -9,6 +9,7 @@ using SSHVpnBot.Components.Checkouts;
 using SSHVpnBot.Components.Colleagues;
 using SSHVpnBot.Components.Discounts.Handlers;
 using SSHVpnBot.Components.Locations;
+using SSHVpnBot.Components.Orders;
 using SSHVpnBot.Components.Orders.Handlers;
 using SSHVpnBot.Components.Orders.Keyboards;
 using SSHVpnBot.Components.Servers.Handlers;
@@ -21,6 +22,7 @@ using SSHVpnBot.Components.Subscribers.Handlers;
 using SSHVpnBot.Components.Subscribers.Keyboards;
 using SSHVpnBot.Components.Transactions;
 using SSHVpnBot.Repositories.Uw;
+using SSHVpnBot.Services.Panel.Models;
 using SSHVpnBot.Telegram;
 using SSHVpnBot.Telegram.Keyboards;
 using Telegram.Bot;
@@ -350,7 +352,65 @@ public static class MessageHandler
                 }
                 else if (message.Text.Equals("🧪 دریافت اکانت تست"))
                 {
+                   var msg = await _bot.SendTextMessageAsync(chatId, $"در حال ساخت اکانت تست...");
+                   var mine = await _uw.AccountRepository.GetMineAccountsAsync(user.Id);
+                   if (!mine.Any(s => s.Type.Equals(AccountType.Check)))
+                   {
+                       var server = await _uw.ServerRepository.GetTestServer();
+                       if (server.IsActive)
+                       {
+ var count = await _uw.AccountRepository.GetLastItemIdAsync();
+        var code = Account.GenerateNewAccountCode(count);
 
+        var email = Account.GenerateNewCheckClientEmail();
+        var password = Account.GenerateNewAccountPassword();
+
+        var client = new CreateNewClientDto()
+        {
+            Email = email,
+            Username = code.ToLower(),
+            Password = password,
+            Traffic = 200,
+            type_traffic = "mb",
+            Multiuser = 1,
+            connection_start = 1,
+            Desc = $"{user.Id}"
+        };
+
+        server.Capacity -= 1;
+
+        var newAccount = new Account()
+        {
+            AccountCode = code,
+            IsActive = true,
+            State = AccountState.Active,
+            Traffic = 0.2,
+            StartsOn = DateTime.Now,
+            EndsOn = DateTime.Now.AddDays(1),
+            Email = client.Email,
+            CreatedOn = DateTime.Now,
+            ServerCode = server.Code,
+            IsRemoved = false,
+            UsedTraffic = 0,
+            ExtendNotifyCount = 0,
+            LimitIp = client.Multiuser,
+            UserName = client.Username.ToLower(),
+            Password = password,
+            UserId = user.Id
+        };
+
+        var result = await _uw.PanelService.CreateNewClientAsync(server, client);
+
+        if (result is not null)
+        {
+            _uw.ServerRepository.Update(server);
+            _uw.AccountRepository.Add(newAccount);
+            await _bot.DeleteMessageAsync(chatId, msg.MessageId);
+            await _bot.SendCheckClientAsync(_uw,server, newAccount);
+        }
+                   
+                       }
+                   }
                 }
                 else if (step.StartsWith("updatelocation*"))
                 {

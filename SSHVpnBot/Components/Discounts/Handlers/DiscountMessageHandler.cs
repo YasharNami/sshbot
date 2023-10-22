@@ -65,7 +65,7 @@ public class DiscountMessageHandler : MessageHandler
                                             long.Parse(message.Text.Fa2En()));
                                         if (u is not null)
                                         {
-                                            discount.UserId = long.Parse(message.Text.Trim().Fa2En());
+                                            //discount.UserId = long.Parse(message.Text.Trim().Fa2En());
                                             _uw.DiscountRepository.Update(discount);
                                             await _bot.SendTextMessageAsync(user.Id,
                                                 $"کد تخفیف با موفقیت به {u.FullName} اختصاص داده شد.✅",
@@ -98,7 +98,7 @@ public class DiscountMessageHandler : MessageHandler
                             case "maxpercentamount":
                                 if (message.Text.Fa2En().IsNumber())
                                 {
-                                    discount.MaxAmountOfPercent = int.Parse(message.Text.Fa2En());
+                                    // discount.MaxAmountOfPercent = int.Parse(message.Text.Fa2En());
                                     _uw.DiscountRepository.Update(discount);
                                     await _bot.SendTextMessageAsync(user.Id,
                                         "میزان سقف درصد تخفیف با موفقیت ویرایش شد.✅",

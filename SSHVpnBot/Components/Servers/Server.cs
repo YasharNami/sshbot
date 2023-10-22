@@ -5,14 +5,16 @@ namespace SSHVpnBot.Components.Servers;
 public class Server
 {
     public int Id { get; set; }
-    public string Code { get; set; }
+    public string Code { get; set;}
+        
+    public int SSHPort { get; set; }
+    public int UdpgwPort { get; set; }
     public string Url { get; set; }
     public string Domain { get; set; }
     public bool IsActive { get; set; }
     public ServerType Type { get; set; }
     public string Username { get; set; }
     public string Password { get; set; }
-    public string Session { get; set; }
     public DateTime CreatedOn { get; set; }
     public int Capacity { get; set; }
     public bool IsRemoved { get; set; }

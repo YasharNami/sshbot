@@ -14,7 +14,7 @@ public class InlineKeyboards
     {
         return new InlineKeyboardMarkup(new List<List<InlineKeyboardButton>>
         {
-            new() { InlineKeyboardButton.WithUrl("عضویت در کانال 🔗️", $"https://t.me/rad_vip_channel") },
+            new() { InlineKeyboardButton.WithUrl("عضویت در کانال 🔗️", $"https://t.me/https://t.me/{MainHandler._channel}") },
             new() { InlineKeyboardButton.WithCallbackData("عضو شدم ✔️", "joined") }
         });
     }

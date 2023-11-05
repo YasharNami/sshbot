@@ -155,6 +155,7 @@ public class MainHandler
             List<string> extend_traffic = new();
             List<string> extend_duration = new();
             List<string> expired_traffic = new();
+            List<string> actived = new();
 
 
             foreach (var user in users)
@@ -165,8 +166,8 @@ public class MainHandler
                     var service = await _uw.ServiceRepository.GetServiceByCode(account.ServiceCode);
                     if (service is not null)
                     {
-                        var usage = user.Traffics.Sum(s => float.Parse(s.Download + s.Upload));
-                        if (usage >= service.Traffic && account.State == AccountState.Active)
+                        var usage = ((decimal)(user.Traffics.Sum(s => decimal.Parse(s.Total)))).MegaByteToGB();
+                        if (usage >= (decimal)service.Traffic && account.State == AccountState.Active)
                         {
                             account.ExtendNotifyCount++;
                             account.State = AccountState.Expired_Traffic;
@@ -196,8 +197,8 @@ public class MainHandler
                         }
                         else
                         {
-                            var usage_percent = (service.Traffic / 100) * 85;
-                            if (account.ExtendNotifyCount == 0 && usage >= usage_percent)
+                            var usage_percent = (int)(service.Traffic / 100) * 85;
+                            if (account.ExtendNotifyCount == 0 && (int)usage >= usage_percent)
                             {
                                 account.ExtendNotifyCount++;
                                 _uw.AccountRepository.Update(account);
@@ -225,6 +226,19 @@ public class MainHandler
                                     Console.WriteLine(e.Message);
                                 }
                             }
+                            
+                            if (account.EndsOn == account.StartsOn || account.State.Equals(AccountState.DeActive))
+                            {
+                                if (usage >= 0.02m)
+                                {
+                                    account.EndsOn = DateTime.Now.AddDays(service.Duration);
+                                    account.State = AccountState.Active;
+                                    _uw.AccountRepository.Update(account);
+                                    actived.Add(account.AccountCode);
+                                    await account.ActiveAccountOnFirstTraffic(_bot, _uw);
+                                }
+                            }
+
                         }
 
                         if (account.ExtendNotifyCount == 0 && user.EndDate is not null &&
@@ -272,6 +286,8 @@ public class MainHandler
             var items = "";
             foreach (var item in extend_traffic)
                 items += $"📮🔋 <code>{item}</code>\n";
+            foreach (var item in actived)
+                items += $"🔗 <code>{item}</code>\n";
             foreach (var item in extend_duration)
                 items += $"📮🕠️ <code>{item}</code>\n";
             foreach (var item in expired_traffic)
@@ -296,7 +312,7 @@ public class MainHandler
         List<string> extend_traffic = new();
         List<string> extend_duration = new();
         List<string> expired_traffic = new();
-
+        List<string> actived = new();
 
         foreach (var user in users)
         {
@@ -306,8 +322,8 @@ public class MainHandler
                 var service = await _uw.ServiceRepository.GetServiceByCode(account.ServiceCode);
                 if (service is not null)
                 {
-                    var usage = user.Traffics.Sum(s => float.Parse(s.Download + s.Upload));
-                    if (usage >= service.Traffic && account.State == AccountState.Active)
+                    var usage = user.Traffics.Sum(s => decimal.Parse(s.Total)).MegaByteToGB();
+                    if (usage >= (decimal)service.Traffic && account.State == AccountState.Active)
                     {
                         account.ExtendNotifyCount++;
                         account.State = AccountState.Expired_Traffic;
@@ -338,7 +354,7 @@ public class MainHandler
                     else
                     {
                         var usage_percent = service.Traffic / 100 * 85;
-                        if (account.ExtendNotifyCount == 0 && usage >= usage_percent)
+                        if (account.ExtendNotifyCount == 0 && (int)usage >= usage_percent)
                         {
                             account.ExtendNotifyCount++;
                             _uw.AccountRepository.Update(account);
@@ -369,11 +385,12 @@ public class MainHandler
 
                         if (account.EndsOn == account.StartsOn || account.State.Equals(AccountState.DeActive))
                         {
-                            if (usage > 0.02)
+                            if (usage > 0.02m)
                             {
                                 account.EndsOn = DateTime.Now.AddDays(service.Duration);
                                 account.State = AccountState.Active;
                                 _uw.AccountRepository.Update(account);
+                                actived.Add(account.AccountCode);
                                 await account.ActiveAccountOnFirstTraffic(_bot, _uw);
                             }
                         }
@@ -423,6 +440,10 @@ public class MainHandler
         var items = "";
         foreach (var item in extend_traffic)
             items += $"📮🔋 <code>{item}</code>\n";
+        
+        foreach (var item in actived)
+            items += $"🔗 <code>{item}</code>\n";
+        
         foreach (var item in extend_duration)
             items += $"📮🕠️ <code>{item}</code>\n";
         foreach (var item in expired_traffic)

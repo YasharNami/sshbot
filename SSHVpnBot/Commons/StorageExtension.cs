@@ -7,6 +7,22 @@ public static class StorageExtension
         return ((float)value / 2024 / 2024 * 3.82f / 1000).ChangeDecimal(2).ToString();
     }
 
+    public static string MegaByteToGB(this int value)
+    {
+        return ((float)value / 1000).ChangeDecimal(2).ToString();
+    }
+    public static double MegaByteToGB(this double value)
+    {
+        return (double)((double)value / 1000).ChangeDecimal(2);
+    }
+    public static decimal MegaByteToGB(this decimal value)
+    {
+        return ((float)value / 1000).ChangeDecimal(2);
+    }
+    public static decimal MegaByteToGB(this float value)
+    {
+        return (value / 1000).ChangeDecimal(2);
+    }
     public static string ByteToGB(this float value)
     {
         return (value / 2024 / 2024 * 3.82f / 1000).ChangeDecimal(2).ToString();

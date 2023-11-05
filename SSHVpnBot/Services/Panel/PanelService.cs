@@ -10,8 +10,6 @@ namespace SSHVpnBot.Services.Panel;
 
 public class PanelService : IPanelService
 {
-    protected readonly string token = "1697652817F0EDZA7UG3H6W51";
-    
     private static class Methods
     {
         public const string getAllClients = "alluser";
@@ -33,7 +31,7 @@ public class PanelService : IPanelService
             {
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var httpResponseMessage =
-                    await httpClient.GetAsync($"{server.Url}/api/{token}/listuser");
+                    await httpClient.GetAsync($"{server.Url}/api/{server.ApiKey}/listuser");
                 var value = await httpResponseMessage.Content.ReadAsStringAsync();
                 try
                 {
@@ -58,7 +56,7 @@ public class PanelService : IPanelService
         {
             try
             {
-                client.Token = token;
+                client.Token = server.ApiKey;
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var httpResponseMessage =
                     await httpClient.PostAsJsonAsync($"{server.Url}/api/adduser", 
@@ -87,7 +85,7 @@ public class PanelService : IPanelService
         {
             try
             {
-                client.Token = token;
+                client.Token = server.ApiKey;
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var httpResponseMessage =
                     await httpClient.PostAsJsonAsync($"{server.Url}/api/edituser", 
@@ -109,7 +107,7 @@ public class PanelService : IPanelService
         {
             try
             {
-                client.Token = token;
+                client.Token = server.ApiKey;
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var httpResponseMessage =
                     await httpClient.PostAsJsonAsync($"{server.Url}/api/delete", 
@@ -131,7 +129,7 @@ public class PanelService : IPanelService
         {
             try
             {
-                client.Token = token;
+                client.Token = server.ApiKey;
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var httpResponseMessage =
                     await httpClient.PostAsJsonAsync($"{server.Url}/api/deactive", 
@@ -153,7 +151,7 @@ public class PanelService : IPanelService
         {
             try
             {
-                client.Token = token;
+                client.Token = server.ApiKey;
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var httpResponseMessage =
                     await httpClient.PostAsJsonAsync($"{server.Url}/api/active", 
@@ -176,7 +174,7 @@ public class PanelService : IPanelService
         {
             try
             {
-                client.token = token;
+                client.token = server.ApiKey;
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var httpResponseMessage =
                     await httpClient.PostAsJsonAsync($"{server.Url}/api/renewal", 
@@ -222,7 +220,7 @@ public class PanelService : IPanelService
             {
                 httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 var httpResponseMessage =
-                    await httpClient.GetAsync($"{server.Url}/api/{token}/online");
+                    await httpClient.GetAsync($"{server.Url}/api/{server.ApiKey}/online");
                 var value = await httpResponseMessage.Content.ReadAsStringAsync();
                 var response = JsonConvert.DeserializeObject<List<OnlineClient>?>(value);
                 return response;

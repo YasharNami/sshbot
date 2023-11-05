@@ -113,6 +113,13 @@ public class ServerCallbackHandler : QueryHandler
             var property = data.Split("*")[2];
             switch (property)
             {
+                case "apikey":
+                    await _bot.Choosed(callBackQuery);
+                    await _bot.SendTextMessageAsync(user.Id, "🔗 مقدار apikey سرور را ارسال کنید :",
+                        replyMarkup: MarkupKeyboards.Cancel());
+                    _uw.SubscriberRepository.ChangeStep(user.Id,
+                        $"{Constants.ServerConstants}-update*{server.Code}*apikey*{callBackQuery.Message.MessageId}");
+                    break;
                 case "note":
                     await _bot.Choosed(callBackQuery);
                     await _bot.SendTextMessageAsync(user.Id, "📝 یادداشت سرور را ارسال کنید :",
@@ -253,7 +260,7 @@ public class ServerCallbackHandler : QueryHandler
                         $"{Constants.ServerConstants}-update*{server.Code}*domain*{callBackQuery.Message.MessageId}");
                     break;
                 case "check":
-                    if (server.Url != "تنظیم نشده" && server.Username != "تنظیم نشده" &&
+                    if (server.Url != "تنظیم نشده" && server.ApiKey.HasValue() && server.Username != "تنظیم نشده" &&
                         server.Password != "تنظیم نشده")
                     {
                         
@@ -278,7 +285,7 @@ public class ServerCallbackHandler : QueryHandler
 
                     break;
                 case "sync":
-                    if (server.Url != "تنظیم نشده" && server.Username != "تنظیم نشده" &&
+                    if (server.Url != "تنظیم نشده" && server.ApiKey.HasValue() && server.Username != "تنظیم نشده" &&
                         server.Password != "تنظیم نشده")
                     {
                         // var res = await _uw.PanelService.Login(server);

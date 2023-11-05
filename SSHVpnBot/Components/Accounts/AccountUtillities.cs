@@ -248,9 +248,9 @@ public static class AccountUtillities
             $"- <code>{account.UserName}</code>\n" +
             $"🔐 Password :\n" +
             $"- <code>{account.Password}</code>\n\n" +
-            $"🔽 دانلود : <b>{client.Traffics.First().Download.ToString(CultureInfo.InvariantCulture).En2Fa()} گیگابایت</b>\n" +
-            $"🔼 آپلود : <b>{client.Traffics.First().Upload.ToString(CultureInfo.InvariantCulture).En2Fa()} گیگابایت</b>\n" +
-            $"♻️ مجموع ترافیک : <b>{(client.Traffics.First().Upload + client.Traffics.First().Download).ToString(CultureInfo.InvariantCulture).En2Fa()} گیگابایت </b>\n\n" +
+            $"🔽 دانلود : <b>{int.Parse(client.Traffics.First().Download).MegaByteToGB().En2Fa()} گیگابایت</b>\n" +
+            $"🔼 آپلود : <b>{int.Parse(client.Traffics.First().Upload).MegaByteToGB().En2Fa()} گیگابایت</b>\n" +
+            $"♻️ مجموع ترافیک : <b>{(int.Parse(client.Traffics.First().Upload) + int.Parse(client.Traffics.First().Download)).MegaByteToGB().En2Fa()} گیگابایت </b>\n\n" +
             $"{(service is not null ? $"🔗 <b>{service.GetFullTitle()}</b>\n" : "")}" +
             $"{order_Info}" +
             (account is not null
@@ -280,11 +280,11 @@ public static class AccountUtillities
             $"🔐 Password :\n" +
             $"- <code>{account.Password}</code>\n\n" +
             $"🔽 دانلود :\n" +
-            $"- <b>{client.Download} GB</b>\n" +
+            $"- <b>{int.Parse(client.Download).MegaByteToGB()} GB</b>\n" +
             $"🔼 آپلود :\n" +
-            $"- <b>{client.Upload} GB</b>\n" +
+            $"- <b>{int.Parse(client.Upload).MegaByteToGB()} GB</b>\n" +
             $"♻️ مجموع ترافیک : \n" +
-            $"- <b>{client.Upload + client.Download} GB</b>\n\n" +
+            $"- <b>{(int.Parse(client.Upload) + int.Parse(client.Download)).MegaByteToGB()} GB</b>\n\n" +
             (
                 account is not null
                     ? $"📍 تاریخ انقضا : <b>{(account.State == AccountState.DeActive ? "نامشخص" : account.EndsOn.ConvertToPersianCalendar())}</b>\n" +
@@ -317,11 +317,11 @@ public static class AccountUtillities
             $"🔐 Password :\n" +
             $"- <code>{account.Password}</code>\n\n" +
             $"🔽 دانلود :\n" +
-            $"- <b>{client.Download} GB</b>\n" +
+            $"- <b>{int.Parse(client.Download).MegaByteToGB()} GB</b>\n" +
             $"🔼 آپلود :\n" +
-            $"- <b>{client.Upload} GB</b>\n" +
+            $"- <b>{int.Parse(client.Upload).MegaByteToGB()} GB</b>\n" +
             $"♻️ مجموع ترافیک : \n" +
-            $"- <b>{client.Upload + client.Download} GB</b>\n\n" +
+            $"- <b>{(int.Parse(client.Upload) + int.Parse(client.Download)).MegaByteToGB()} GB</b>\n\n" +
             $"📍 تاریخ انقضا : \n" +
             $"- <b>{account.EndsOn.ConvertToPersianCalendar()}</b>\n" +
             $"🔹 وضعیت اشتراک : \n" +

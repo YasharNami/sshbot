@@ -90,24 +90,6 @@ public static class NumberExtension
         }
     }
 
-    public static decimal ChangeDecimal(this int digit, int decimalno)
-    {
-        var s = digit.ToString(CultureInfo.InvariantCulture);
-        var res = s.Split('.');
-        var section1 = res[0];
-        if (res.Length > 1)
-        {
-            if (decimalno > res[1].Length) decimalno = res[1].Length;
-
-            var t = res[1].Length - decimalno;
-            var section2 = res[1].Remove(decimalno, t);
-            return Convert.ToDecimal(section1 + "." + section2, CultureInfo.InvariantCulture);
-        }
-        else
-        {
-            return Convert.ToDecimal(res[0], CultureInfo.InvariantCulture);
-        }
-    }
     public static decimal ChangeDecimal(this double digit, int decimalno)
     {
         var s = digit.ToString(CultureInfo.InvariantCulture);

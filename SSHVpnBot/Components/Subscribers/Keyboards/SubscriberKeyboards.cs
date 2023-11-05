@@ -160,12 +160,12 @@ public class SubscriberKeyboards
                 $"{(user.Notification ? "✅ هشدار انقضای سرویس" : "🚫 هشدار انقضای سرویس")}",
                 $"{Constants.SubscriberConstatns}-settings*notifications")
         });
-        if (user.Role == Role.Colleague)
-            buttonLines.Add(new List<InlineKeyboardButton>()
-            {
-                InlineKeyboardButton.WithCallbackData("🔖 ویرایش ریمارک",
-                    $"{Constants.SubscriberConstatns}-settings*updateremark")
-            });
+        // if (user.Role == Role.Colleague)
+        //     buttonLines.Add(new List<InlineKeyboardButton>()
+        //     {
+        //         InlineKeyboardButton.WithCallbackData("🔖 ویرایش ریمارک",
+        //             $"{Constants.SubscriberConstatns}-settings*updateremark")
+        //     });
 
         // buttonLines.Add(new List<InlineKeyboardButton>()
         // {

@@ -238,61 +238,70 @@ public class ServerKeyboards
         {
             new()
             {
-                InlineKeyboardButton.WithCallbackData("آدرس 🔗️️", $"{Constants.ServerConstants}-update*{server.Code}*url"),
-                InlineKeyboardButton.WithCallbackData("ظرفیت کاربر 👥️",
+                InlineKeyboardButton.WithCallbackData("Url 🔗️️", $"{Constants.ServerConstants}-update*{server.Code}*url"),
+                InlineKeyboardButton.WithCallbackData("Capacity 👥️",
                     $"{Constants.ServerConstants}-update*{server.Code}*capacity")
             },
             new()
             {
-                InlineKeyboardButton.WithCallbackData("نام کاربری 👤️",
+                InlineKeyboardButton.WithCallbackData("Username 👤️",
                     $"{Constants.ServerConstants}-update*{server.Code}*username"),
-                InlineKeyboardButton.WithCallbackData("رمز عبور 🔒️️️",
+                InlineKeyboardButton.WithCallbackData("Password 🔒️️️",
                     $"{Constants.ServerConstants}-update*{server.Code}*password")
             },
             new()
             {
-                InlineKeyboardButton.WithCallbackData("رمز ریموت 💻️",
+                InlineKeyboardButton.WithCallbackData("ApiKey 🔗️️", $"{Constants.ServerConstants}-update*{server.Code}*apikey"),
+            },
+            new()
+            {
+                InlineKeyboardButton.WithCallbackData("SSH Password 💻️",
                     $"{Constants.ServerConstants}-update*{server.Code}*sshpassword")
             },
             new()
             {
-                InlineKeyboardButton.WithCallbackData("ریبوت سرور ♻️",
+                InlineKeyboardButton.WithCallbackData("SSH Port 💻️", $"{Constants.ServerConstants}-update*{server.Code}*sshport"),
+                InlineKeyboardButton.WithCallbackData("UdpgwPort 💻️", $"{Constants.ServerConstants}-update*{server.Code}*udpgwPort")
+            },
+            new()
+            {
+                InlineKeyboardButton.WithCallbackData("Reboot ♻️",
                     $"{Constants.ServerConstants}-update*{server.Code}*reboot")
             },
+            // new()
+            // {
+            //     InlineKeyboardButton.WithCallbackData("دریافت گزارش اختلالات ⚠️️",
+            //         $"{Constants.ServerConstants}-update*{server.Code}*reports")
+            // },
             new()
             {
-                InlineKeyboardButton.WithCallbackData("دریافت گزارش اختلالات ⚠️️",
-                    $"{Constants.ServerConstants}-update*{server.Code}*reports")
-            },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("ادرس دامنه 📍️️️️",
+                InlineKeyboardButton.WithCallbackData("Domain 📍️️️️",
                     $"{Constants.ServerConstants}-update*{server.Code}*domain"),
-                InlineKeyboardButton.WithCallbackData("نوع سرور 🔘️️️",
+                InlineKeyboardButton.WithCallbackData("Type 🔘️️️",
                     $"{Constants.ServerConstants}-update*{server.Code}*type")
             },
             new()
             {
-                InlineKeyboardButton.WithCallbackData("تست اتصال ♻️️️️",
+                InlineKeyboardButton.WithCallbackData("Check ♻️️️️",
                     $"{Constants.ServerConstants}-update*{server.Code}*check"),
-                InlineKeyboardButton.WithCallbackData("حذف سرور ✖️️️️️",
+                InlineKeyboardButton.WithCallbackData("Remove ✖️️️️️",
                     $"{Constants.ServerConstants}-update*{server.Code}*delete")
+            },
+            new()
+            {
+                InlineKeyboardButton.WithCallbackData("Sync Server ♻️️️️",
+                    $"{Constants.ServerConstants}-update*{server.Code}*sync")
             },
             // new()
             // {
-            //     InlineKeyboardButton.WithCallbackData("همگامسازی سرور ♻️️️️",
-            //         $"{Constants.ServerConstants}-update*{server.Code}*sync")
+            //     InlineKeyboardButton.WithCallbackData("دریافت بک آپ 🗂️",
+            //         $"{Constants.ServerConstants}-update*{server.Code}*backup")
             // },
             new()
             {
-                InlineKeyboardButton.WithCallbackData("دریافت بک آپ 🗂️",
-                    $"{Constants.ServerConstants}-update*{server.Code}*backup")
-            },
-            new()
-            {
-                InlineKeyboardButton.WithCallbackData("یادداشت 📝️",
+                InlineKeyboardButton.WithCallbackData("Note 📝️",
                     $"{Constants.ServerConstants}-update*{server.Code}*note"),
-                InlineKeyboardButton.WithCallbackData("لوکیشن 🌎️",
+                InlineKeyboardButton.WithCallbackData("Location 🌎️",
                     $"{Constants.ServerConstants}-update*{server.Code}*location")
             },
             // new()
@@ -313,12 +322,12 @@ public class ServerKeyboards
             new()
             {
                 InlineKeyboardButton.WithCallbackData(
-                    $"{(server.IsActive ? "غیرفعال سازی سرور 🔴️️️" : "فعال سازی سرور 🟢️️️️")}",
+                    $"{(server.IsActive ? "DeActive Server 🔴️️️" : "Active Server 🟢️️️️")}",
                     $"{Constants.ServerConstants}-update*{server.Code}*activation")
             },
             new()
             {
-                InlineKeyboardButton.WithCallbackData("افزودن سرور ✅",
+                InlineKeyboardButton.WithCallbackData("Add Server ✅",
                     $"{Constants.ServerConstants}-update*{server.Code}*done")
             }
         });

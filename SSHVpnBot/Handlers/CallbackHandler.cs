@@ -73,7 +73,7 @@ public static class CallbackHandler
                 {
                     await _bot.SendTextMessageAsync(chatId,
                         "پیش از ادامه کار با ربات لطفا در کانال ما عضو شوید 🙏 \n\n" +
-                        "🆔 @connectbash", replyMarkup: InlineKeyboards.Joined());
+                        $"🆔 @{MainHandler._channel}", replyMarkup: InlineKeyboards.Joined());
                     return;
                 }
             }

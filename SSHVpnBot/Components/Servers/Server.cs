@@ -6,7 +6,7 @@ public class Server
 {
     public int Id { get; set; }
     public string Code { get; set;}
-        
+    public string ApiKey { get; set; }
     public int SSHPort { get; set; }
     public int UdpgwPort { get; set; }
     public string Url { get; set; }

@@ -61,6 +61,13 @@ public class ServerMessageHandler : MessageHandler
                             _uw.ServerRepository.Update(server);
                             _uw.SubscriberRepository.ChangeStep(user.Id, $"none");
                             break;
+                        case "apikey":
+                            server.ApiKey = message.Text;
+                            await _bot.SendTextMessageAsync(user.Id, "مقدار apikey سرور با موفقیت ویرایش شد ✅",
+                                replyMarkup: MarkupKeyboards.Main(subscriber.Role));
+                            _uw.ServerRepository.Update(server);
+                            _uw.SubscriberRepository.ChangeStep(user.Id, $"none");
+                            break;
                         case "password":
                             server.Password = message.Text.Fa2En().Encrypt();
                             await _bot.SendTextMessageAsync(user.Id, "رمز عبور سرور با موفقیت ویرایش شد ✅",

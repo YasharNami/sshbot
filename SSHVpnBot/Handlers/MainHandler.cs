@@ -158,7 +158,7 @@ public class MainHandler
             List<string> actived = new();
 
 
-            foreach (var user in users)
+            foreach (var user in users.Where(s=>s.Status == "active").ToList())
             {
                 var account = await _uw.AccountRepository.GetByAccountCode(user.Username.ToUpper());
                 if (account is not null)
@@ -197,7 +197,7 @@ public class MainHandler
                         }
                         else
                         {
-                            var usage_percent = (int)(service.Traffic / 100) * 85;
+                            var usage_percent = (service.Traffic / 100) * 85;
                             if (account.ExtendNotifyCount == 0 && (int)usage >= usage_percent)
                             {
                                 account.ExtendNotifyCount++;
@@ -314,7 +314,7 @@ public class MainHandler
         List<string> expired_traffic = new();
         List<string> actived = new();
 
-        foreach (var user in users)
+        foreach (var user in users.Where(s=>s.Status == "active").ToList())
         {
             var account = await _uw.AccountRepository.GetByAccountCode(user.Username.ToUpper());
             if (account is not null)
@@ -323,6 +323,8 @@ public class MainHandler
                 if (service is not null)
                 {
                     var usage = user.Traffics.Sum(s => decimal.Parse(s.Total)).MegaByteToGB();
+                    Console.WriteLine(account.AccountCode + $"- {usage}GB");
+
                     if (usage >= (decimal)service.Traffic && account.State == AccountState.Active)
                     {
                         account.ExtendNotifyCount++;
@@ -353,7 +355,7 @@ public class MainHandler
                     }
                     else
                     {
-                        var usage_percent = service.Traffic / 100 * 85;
+                        var usage_percent = (service.Traffic / 100) * 85;
                         if (account.ExtendNotifyCount == 0 && (int)usage >= usage_percent)
                         {
                             account.ExtendNotifyCount++;

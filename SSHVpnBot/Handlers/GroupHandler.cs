@@ -253,7 +253,7 @@ public static class GroupHandler
                 Task.Run(async () =>
                 {
                     var account =
-                        await _uw.AccountRepository.GetByAccountCode(message.Text.Split(" ")[1]);
+                        await _uw.AccountRepository.GetByAccountCode(message.Text.Trim().Fa2En().ToLower().Split(" ")[1]);
                     if (account is not null)
                     {
                         var server = await _uw.ServerRepository.GetServerByCode(account.ServerCode);
